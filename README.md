@@ -4,14 +4,6 @@ This folder contains a shiny app which is designed to help novice learners
 understand the nature of data, how to visualise data using 2D plots, and how 
 to execute generalized linear models (GLiMs). I advocate an approach of 
 data -> plots -> analyses. 
-The GUI allows students to explore data, plots and analyses in a familiar 
-environment, and returns the relevant code to enable students to produce the 
-outputs themselves. The idea is to provide a softer introduction to coding,
-weaning students onto their own code over time. Accompanying exercises and 
-lecture slides supplement learning by reinforcing the lessons learned through
-the app, and encouraging students to go beyond the foundation of the app to work 
-with new data, new variables, new plots, new analyses, unknown arguments, 
-new funtions, etc., usw., osv. 
  
 The tabs are to be taken in order. First, understand individual variables 
 (data). Second, understand relationships between multiple variables (plots). 
@@ -24,7 +16,11 @@ package, which follows the "grammar of graphics" framework for data
 visualisation. The apps provide a GUI for learning theories of data, data 
 visualisation and GLiMs, but display corresponding `R` code to implement these, 
 which (I hope) is a softer approach to introducing learners to coding for the 
-first time.  
+first time. Accompanying exercises and 
+lecture slides supplement learning by reinforcing the lessons learned through
+the app, and encouraging students to go beyond the foundation of the app to work 
+with new data, new variables, new plots, new analyses, unknown arguments, 
+new funtions, etc., usw., osv.  
 
 Many of the data examples are of a biological / ecological / conservation / 
 evolution nature, because that's what I do and that's what I teach. If you 
@@ -40,8 +36,5 @@ textbook by
 [Owen Petchey](https://github.com/opetchey).
 I recommend it.
 
-The apps [are / will be - delete as appropriate] available here:  
-[1 Data](https://iainmstott.shinyapps.io/UnderstandingData)  
-[2 Plots](https://iainmstott.shinyapps.io/UnderstandingPlots)  
-[3 GLM](https://iainmstott.shinyapps.io/UnderstandingGLM)  
-[4 GLiM](https://iainmstott.shinyapps.io/UnderstandingGLiM)  
+The app is available here:  
+[ShinyGLiM](https://iainmstott.shinyapps.io/ShinyGLiM)  

@@ -1,3 +1,8 @@
+
+### packages
+library(tibble)
+library(readr)
+
 ### Generate random 'games' data
 ## number of data points 
 N <- 231
@@ -22,5 +27,5 @@ cballs_lose <- ntrials - cballs_win # losses
 
 
 ## Data frame
-games <- data.frame(ffold, pballs, cballs_win, cballs_lose)
-write.csv(games, "data/games.csv")
+games <- tibble(ffold, pballs, cballs_win, cballs_lose)
+write_csv(games, "data/games.csv")

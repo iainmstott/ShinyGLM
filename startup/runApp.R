@@ -5,17 +5,16 @@
 install.packages("shiny")
 install.packages("shinythemes")
 install.packages("shinyjs")
-install.packages("magrittr")
-install.packages("popdemo")
-devtools::install_github("jonesor/Rage")
-devtools::install_github("jonesor/Rcompadre")
+install.packages("ggplot2")
+install.packages("readr")
+install.packages("DT")
 
 # Make sure the directory is correct
-setwd("C:/Dropbox/Work/Software/RShiny/ShinyPop")
+setwd("C:/Dropbox/Work/Software/RShiny/ShinyGLiM")
 
 
 # Run the application
-shiny::shinyAppDir(appDir = "C:/Dropbox/Work/Software/Rshiny/ShinyPop",
+shiny::shinyAppDir(appDir = "C:/Dropbox/Work/Software/Rshiny/ShinyGLiM",
                    options = list(launch.browser=
                                         TRUE)
                                         #rstudioapi::viewer)
@@ -24,8 +23,8 @@ shiny::shinyAppDir(appDir = "C:/Dropbox/Work/Software/Rshiny/ShinyPop",
 
 
 # Deploy the application to shinyapps.io
-rsconnect::deployApp(appDir = "C:/Dropbox/Work/Software/Rshiny/ShinyPop",
-                     appName = "ShinyPop", appId = "382556",
+rsconnect::deployApp(appDir = "C:/Dropbox/Work/Software/Rshiny/GLiM",
+                     appName = "ShinyGLiM", appId = "??????",
                      account = "iainmstott", upload = TRUE)
 
 

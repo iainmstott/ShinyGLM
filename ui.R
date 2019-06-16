@@ -12,10 +12,17 @@ ui <- fluidPage(
 # # favicon         
 #          tags$link(rel="icon", href="favicon.ico", type="image/x-icon"),
 #          tags$link(rel="shortcut icon", href="favicon.ico", type="image/x-icon"),
-# # CSS
-#          includeCSS("CSS/main.css")
-
+# # Prettify
+#         tags$script(src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js?lang=r"),
+# CSS
+        includeCSS("CSS/atelier-sulphurpool-light.css"),
+        includeCSS("CSS/main.css"),
+        includeCSS("CSS/prism.css"),
+# JS
+        tags$script(src = "prism.js", type = "text/javascript"),
+        tags$script(src = "prism.r.js", type = "text/javascript")
     ),
+
 
 ## TITLE PANEL #################################################################
 
@@ -64,25 +71,101 @@ ui <- fluidPage(
 #...............................................................................
                 sidebarPanel(width = 4,
                     # Choose data
-                    selectInput(inputId = "SelectedData", label = "Choose a data source:",
-                                choices = "Games", selected = "Games",
-                                multiple = FALSE, selectize = TRUE),
+                    selectInput(
+                        inputId = "dataSelect", 
+                        label = "Choose a data source:",
+                        choices = datanames, selected = "games",
+                        multiple = FALSE, selectize = TRUE
+                        ),
+                    actionButton(inputId = "refreshData", label = "REFRESH DATA"),
+                    br(),
+                    br(),
+                    radioButtons(
+                        inputId = "rowsBy", 
+                        label = "Choose rows by...",
+                        choices = list(
+                            "Row numbers" = "rowNum", 
+                            "Row names" = "rowNam", 
+                            "Variables" = "rowVar"
+                        ),
+                        selected = "rowNum"
+                    ),
+
+### *** updateSelectInput to deal with this;    ½ both rows and columns
+                    conditionalPanel(
+                        condition = "input.rowsBy == 'rowNum'",
+                        sliderInput(
+                            inputId = "rowNumFilter", 
+                            label = "Choose rows:",
+                            value = c(1, 10),
+                            min = 1, max = 10, step = 1
+                        )
+                   ),
+                    #  conditionalPanel(
+                    #     condition = "input.rowsBy == 'Variable names'",
+                    #     selectInput(
+                    #         inputId = "rowFilter", 
+                    #         label = "Choose variables:",
+                    #         choices = rowFilterValues,
+                    #         multiple = TRUE, selectize = TRUE)
+                    # ),
+                    HTML("HERE GO MORE OPTIONS"),
+                    br(),
+                    br(),
+                    radioButtons(
+                        inputId = "colsBy", 
+                        label = "Choose columns by...",
+                            choices = list(
+                                     "Column numbers" = "colNum", 
+                                     "Variable names" = "colVar"
+                                 ),
+                        selected = "colNum"
+                    ),
+                    br(),
+                    conditionalPanel(
+                        condition = "input.colsBy == 'colNum'",
+                        sliderInput(
+                            inputId = "colNumFilter", 
+                            label = "Choose columns:",
+                            value = c(1, 4),
+                            min = 1, max = 4, step = 1
+                        )
+                    ),
+                    # conditionalPanel(
+                    #     condition = "input.colsBy == 'Variable names'",
+                    #     selectInput(
+                    #         inputId = "colVarFilter", 
+                    #         label = "Choose variables:",
+                    #         choices = colVarFilterValues,
+                    #         multiple = TRUE, selectize = TRUE
+                    #     ),
+                    # ),
+                    # br(),
+                    br(),
+
+
                     HTML("HERE GO MORE OPTIONS")
                 ),
 #...............................................................................
                 mainPanel(
-                    tabsetPanel(type = "tabs", selected = "TAB1",
+                    tabsetPanel(type = "tabs", selected = "OUTPUT",
                         # Tab1
-                        tabPanel("TAB1",
-                            HTML("HERE GOES SOME GRAPHS AND STUFF")
+                        tabPanel("OUTPUT",
+                            DT::dataTableOutput("renderData"),
+                            br(),
+                            br()
                         ),
-                        tabPanel("TAB2",
-                            HTML("HERE GOES MORE GRAPHS AND STUFF")
+                        tabPanel("CODE", 
+                            tags$div(id = "dataCode",
+                                htmlOutput("renderCode")
+                            ),
+                            br(),
+                            br()
                         )
                     )
                 )
             )
-        )
+        ),
 
 
 ## DATA VISUALISATION PANEL ####################################################
@@ -110,7 +193,7 @@ ui <- fluidPage(
                     )
                 )
             )
-        )
+        ),
 
 
 ## DATA ANALYSIS PANEL #########################################################
@@ -142,7 +225,7 @@ ui <- fluidPage(
                         )
                     )
                 )
-            )
+            ),
 
 ##_POISSON_DATA_________________________________________________________________
 
@@ -169,7 +252,7 @@ ui <- fluidPage(
                         )
                     )
                 )
-            )
+            ),
 
 ##_BINOMIAL_DATA________________________________________________________________
 
@@ -200,3 +283,75 @@ ui <- fluidPage(
         )
     )
 )
+
+
+
+
+
+
+
+
+
+
+
+# TEST HTML CODE
+#                                 pre(class="prettyprint lang-r",
+#                                     HTML(
+# 'function (A, vector = "n", bound = NULL, return.N = FALSE)
+# {
+#     if (any(length(dim(A)) != 2, dim(A)[1] != dim(A)[2]))
+#         stop("A must be a square matrix")
+#     order <- dim(A)[1]
+#     if (!isIrreducible(A)) {
+#         warning("Matrix is reducible")
+#     }
+#     else {
+#         if (!isPrimitive(A))
+#             warning("Matrix is imprimitive")
+#     }
+#     M <- A
+#     eigvals <- eigen(M)$values
+#     lmax <- which.max(Re(eigvals))
+#     lambda <- Re(eigvals[lmax])
+#     A <- M/lambda
+#     if (vector[1] == "n") {
+#         if (!any(bound == "upper", bound == "lower"))
+#             stop("Please specify bound=\"upper\", bound=\"lower\" or specify vector")
+#         if (bound == "upper") {
+#             reac <- norm(A)
+#             if (return.N) {
+#                 N <- reac * lambda
+#                 return(list(reac = reac, N = N))
+#             }
+#             else {
+#                 return(reac)
+#             }
+#         }
+#         if (bound == "lower") {
+#             reac <- .minCS(A)
+#             if (return.N) {
+#                 N <- reac * lambda
+#                 return(list(reac = reac, N = N))
+#             }
+#             else {
+#                 return(reac)
+#             }
+#         }
+#     }
+#     else {
+#         if (!is.null(bound))
+#             warning("Specification of vector overrides calculation of bound")
+#         n0 <- vector
+#         vector <- n0/sum(n0)
+#         reac <- sum(A %*% vector)
+#         if (return.N) {
+#             N <- reac * sum(n0) * lambda
+#             return(list(reac = reac, N = N))
+#         }
+#         else {
+#             return(reac)
+#         }
+#     }
+# }'
+#                                     )
+#                                 )
