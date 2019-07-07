@@ -3,6 +3,19 @@ select, select.form-control {
     padding-right: 15px;
 }
 
+input[type = 'text'] {
+    font-family: "Consolas", monospace;
+}
+
+ul#rowVarButton {
+    padding: 0;
+}
+
+ul#rowVarButton li {
+    display: table-cell;
+    vertical-align: middle;
+}
+
 /*.code {
     padding: 20;
     font-family: "Consolas", Monaco, monospace;

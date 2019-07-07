@@ -1,49 +1,65 @@
 # Define UI for application that draws a histogram
 ui <- fluidPage(
 
-    # THEME
+### SET UP #####################################################################
+## THEME .......................................................................
     theme = shinytheme("paper"),
 
-#    shinyjs::useShinyjs(),
 
-# Head
+## HEAD ........................................................................
+
+
     tags$head(
-              
-# # favicon         
-#          tags$link(rel="icon", href="favicon.ico", type="image/x-icon"),
-#          tags$link(rel="shortcut icon", href="favicon.ico", type="image/x-icon"),
-# # Prettify
-#         tags$script(src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js?lang=r"),
-# CSS
+
+## FAVICON .....................................................................
+
+            # Favicon (not used)
+            # tags$link(rel="icon", href="favicon.ico", type="image/x-icon"),
+            # tags$link(rel="shortcut icon", href="favicon.ico", type="image/x-icon"),
+
+## CSS .........................................................................
+
+        # not quite sure what this is
         includeCSS("CSS/atelier-sulphurpool-light.css"),
+        # My edits
         includeCSS("CSS/main.css"),
+        # Prism (for code syntax highlighting)
         includeCSS("CSS/prism.css"),
-# JS
+
+
+## JS ..........................................................................
+
+        # Prettify (not used)
+        #  tags$script(src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js?lang=r"),
+
+        # Prism & Prism for R
         tags$script(src = "prism.js", type = "text/javascript"),
         tags$script(src = "prism.r.js", type = "text/javascript")
     ),
 
 
-## TITLE PANEL #################################################################
+### TITLE PANEL ################################################################
 
     navbarPage("BGY2010M", collapsible = TRUE, selected = "DATA",
+        ## Heading
+        # stuff about the app
         tags$div(id = "tagline",
             HTML("This Shiny app is designed to help novice learners understand 
             the nature of data, visualising it, and analysing it using 
-            generalised linear models. Data visualisation uses the 
-            <a href='https://ggplot2.tidyverse.org/' target=_blank>ggplot2</a>
-            package by Hadley Wickham and Winston Chang. I recommend 
-            <a href='https://global.oup.com/academic/product/getting-started-with-r-9780198787846' target=_blank>Getting Started with R</a>
-            by Andrew Beckerman, Dylan Childs and Owen Petchey as an accompanying 
-            textbook. Source code for this project is on my
-            <a href='https://github.com/iainmstott' target=_blank>GitHub</a>"
+            generalised linear models. The app uses the 
+            <a href='https://www.tidyverse.org/packages/' target=_blank>tidyverse</a>
+            and is intended as a loose accompaniment to the excellent
+            <a href='https://global.oup.com/academic/product/getting-started-with-r-9780198787846' target=_blank>Getting Started with R (second edition)</a>
+            textbook by Andrew Beckerman, Dylan Childs and Owen Petchey (2017). 
+            Source code for this project is on my
+            <a href='https://github.com/iainmstott' target=_blank>GitHub</a>."
             ),
             p()
         ),
         br(),
 
 
-## USER GUIDE PANEL ############################################################
+### USER GUIDE PANEL ###########################################################
 
         tabPanel("USER GUIDE",
             h3("USER GUIDE"),
@@ -64,97 +80,109 @@ ui <- fluidPage(
         ),
 
 
-## DATA PANEL ##################################################################
+### DATA PANEL #################################################################
 
+        ### Display the data
         tabPanel("DATA",
             sidebarLayout(
-#...............................................................................
+## SIDEBAR PANEL (CHOOSE DATA) .................................................
                 sidebarPanel(width = 4,
-                    # Choose data
+                    # Choose data source
                     selectInput(
                         inputId = "dataSelect", 
                         label = "Choose a data source:",
                         choices = datanames, selected = "games",
                         multiple = FALSE, selectize = TRUE
                         ),
+                    # REFRESH DATA button
                     actionButton(inputId = "refreshData", label = "REFRESH DATA"),
                     br(),
                     br(),
+                    # Choose rows by either numbers or variable values
                     radioButtons(
                         inputId = "rowsBy", 
-                        label = "Choose rows by...",
+                        label = "ROWS | Choose by...",
                         choices = list(
                             "Row numbers" = "rowNum", 
-                            "Row names" = "rowNam", 
-                            "Variables" = "rowVar"
+                            "Variable values" = "rowVar"
                         ),
                         selected = "rowNum"
                     ),
-
-### *** updateSelectInput to deal with this;    ½ both rows and columns
+                    # Choose by row numbers: conditional panel
                     conditionalPanel(
                         condition = "input.rowsBy == 'rowNum'",
                         sliderInput(
                             inputId = "rowNumFilter", 
                             label = "Choose rows:",
-                            value = c(1, 10),
-                            min = 1, max = 10, step = 1
+                            value = c(1, 1),
+                            min = 1, max = 1, step = 1
                         )
                    ),
-                    #  conditionalPanel(
-                    #     condition = "input.rowsBy == 'Variable names'",
-                    #     selectInput(
-                    #         inputId = "rowFilter", 
-                    #         label = "Choose variables:",
-                    #         choices = rowFilterValues,
-                    #         multiple = TRUE, selectize = TRUE)
-                    # ),
-                    HTML("HERE GO MORE OPTIONS"),
+                    # choose by variable values: conditional panel
+                    conditionalPanel(
+                        condition = "input.rowsBy == 'rowVar'",
+                        textInput(
+                            inputId = "rowVarFilter", 
+                            label = "Type expressions below using logical operators:",
+                            placeholder = "e.g. contVar > 0 & catVar == 'A'"),
+                        tags$ul(id = "rowVarButton",
+                            tags$li(
+                                # text to advise on logical stuff to choose by variable 
+                                # values
+                                HTML("Use variable names and values from the selected 
+                                    data source. See Beckerman, Childs, Petchey (2017) 
+                                    pp.63-65 for help.")
+                            ),
+                            tags$li(
+                                actionButton(inputId = "refreshRowVar", label = "REFRESH")
+                            )
+                        )
+                    ),
                     br(),
-                    br(),
+                    # choose columns by either numbers or variable names
                     radioButtons(
                         inputId = "colsBy", 
-                        label = "Choose columns by...",
+                        label = "COLUMNS | Choose by...",
                             choices = list(
                                      "Column numbers" = "colNum", 
                                      "Variable names" = "colVar"
                                  ),
                         selected = "colNum"
                     ),
-                    br(),
+                    # choose columns by numbers (conditional panel)
                     conditionalPanel(
                         condition = "input.colsBy == 'colNum'",
                         sliderInput(
                             inputId = "colNumFilter", 
                             label = "Choose columns:",
-                            value = c(1, 4),
-                            min = 1, max = 4, step = 1
+                            value = c(1, 1),
+                            min = 1, max = 1, step = 1
                         )
                     ),
-                    # conditionalPanel(
-                    #     condition = "input.colsBy == 'Variable names'",
-                    #     selectInput(
-                    #         inputId = "colVarFilter", 
-                    #         label = "Choose variables:",
-                    #         choices = colVarFilterValues,
-                    #         multiple = TRUE, selectize = TRUE
-                    #     ),
-                    # ),
+                    # choose columns by names (conditional panel)
+                    conditionalPanel(
+                        condition = "input.colsBy == 'colVar'",
+                        selectInput(
+                            inputId = "colVarFilter", 
+                            label = "Choose variables:",
+                            choices = "A",
+                            multiple = TRUE, selectize = TRUE
+                        )
+                    ),
                     # br(),
-                    br(),
-
-
-                    HTML("HERE GO MORE OPTIONS")
+                    br()
                 ),
-#...............................................................................
+## MAIN PANEL (DATA TABLE AND CODE) ............................................
                 mainPanel(
+                    # Display outputs for data selection
                     tabsetPanel(type = "tabs", selected = "OUTPUT",
-                        # Tab1
+                        # Data frame as table
                         tabPanel("OUTPUT",
                             DT::dataTableOutput("renderData"),
                             br(),
                             br()
                         ),
+                        # code used to produce data frame
                         tabPanel("CODE", 
                             tags$div(id = "dataCode",
                                 htmlOutput("renderCode")

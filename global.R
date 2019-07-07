@@ -2,9 +2,10 @@
 library(shiny)
 library(shinythemes)
 library(shinyjs)
-library(ggplot2)
-library(readr)
 library(DT)
+library(readr)
+library(dplyr)
+library(ggplot2)
 
 datafiles <- (list.files("data"))
 data <- lapply(datafiles, function(dat){ read_csv(paste("data/", dat, sep = "")) })
