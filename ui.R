@@ -40,7 +40,7 @@ ui <- fluidPage(
 
 ### TITLE PANEL ################################################################
 
-    navbarPage("BGY2010M", collapsible = TRUE, selected = "DATA",
+    navbarPage("BGY2010M", collapsible = TRUE, selected = "USER GUIDE",
         ## Heading
         # stuff about the app
         tags$div(id = "tagline",
@@ -62,42 +62,126 @@ ui <- fluidPage(
 ### USER GUIDE PANEL ###########################################################
 
         tabPanel("USER GUIDE",
-            h3("USER GUIDE"),
-            HTML("This page walks you through the content and useage of each panel."
-            ),
-            br(), br(), br(),
-            h3("HEADER 1"),
-            HTML("Text 1"),
-            br(),
-            br(),
-            h4("HEADER 2"),
-            HTML("Text 2"
-            ),
-            h4("HEADER 3"),
-            HTML("Text 3"
-            ),
-            br(), br(), br(), br()
+            sidebarLayout(
+## SIDEBAR PANEL (CHOOSE DATA) .................................................
+                sidebarPanel(width = 4,
+                    tags$h5("USER GUIDE"),
+                    HTML("This page navigates you through the shiny app. The 
+                          very first thing you need to do though, is choose the 
+                          data with which you want to work."),
+                    hr(),
+                    # Choose data source
+                    selectInput(
+                        inputId = "dataSelect", 
+                        label = "Choose data to work with:",
+                        choices = datanames, selected = "games",
+                        multiple = FALSE, selectize = TRUE
+                    ),
+                    tags$ul(id = "dataButton",
+                        tags$li(
+                            actionButton(inputId = "refreshData",
+                                         label = "REFRESH DATA")
+                        ),
+                        tags$li(
+                            # text to advise on logical stuff to choose by variable 
+                            # values
+                            HTML("Beware: refreshing the data means losing all
+                                  other current app settings!")
+                        )
+                    ),
+                    br(),
+                    br()
+                ),
+                mainPanel(
+                    h4("USER GUIDE"),
+                    HTML("This page walks you through the content and useage of each panel.
+                          This Shiny app is all about DATA. So, first
+                          choose the data you want to work with, using the drop-down menu
+                          on this page. The app is designed to follow the 'proper' analytical process.
+                          That is: tidy your data,
+                          plot your data, fit a model, evaluate the model fit, present your
+                          results. See the 'Getting Started with R' book for more detail."
+                    ),
+                    br(), br(),
+                    HTML("<strong>The app pages are listed below. These need to 
+                          be completed in order.</strong>"
+                    ),
+                    br(), br(), br(),
+                    h5("DATA"),
+                    HTML("Having chosen the data you want to work with, you can see
+                          it in the DATA tab. In this tab you should select the rows
+                          and columns of data you want to work with, and add a variable 
+                          if you need to."
+                    ),
+                    br(), br(),
+                    h5("DATA VISUALISATION"),
+                    HTML("Once you've tidied up your data and got everything you want
+                          to work with, it's time for DATA VISUALISATION. It's important
+                          you should have some idea of what your data looks like, and 
+                          whether it seems to fit your hypotheses, before you fit a model."
+                    ),
+                    br(),
+                    HTML("<strong>ONE VARIABLE:</strong>
+                          This tab is for visualising the distributions of your variables:
+                          histograms and probability density of continuous variables, and 
+                          numbers of observations for categorical variables."
+                    ),
+                    br(),
+                    HTML("<strong>TWO VARIABLES:</strong>
+                          This tab is for visualising how variables relate to one 
+                          another: scatterplots, box plots, violin plots, 
+                          mean &plusmn; standard error."
+                    ),
+                    br(), br(),
+                    h5("DATA ANALYSIS"),
+                    HTML("Having had a look at the data, you're ready for DATA ANALYSIS. 
+                          Choose the response variable and up to two 
+                          explanatory variables, and refresh the model. The tabs show
+                          the MODEL FIT and the RESULTS. There are 3 types of analysis."
+                    ),
+                    br(),
+                    HTML("<strong>GAUSSIAN:</strong>
+                          Analyse Gaussian (normally-distributed) data. The response variable is
+                          usually continuous data which isn't bounded."
+                    ),
+                    br(),
+                    HTML("<strong>POISSON:</strong>
+                          Analyse Poisson data. The response variable is usually integer (count) 
+                          data which is bounded below at zero."
+                    ),
+                    br(),
+                    HTML("<strong>BINOMIAL:</strong>
+                          Analyse binomial data. The response variable is usually specified as two integer
+                          columns representing 'successes' (an event occuring), and 
+                          'failures' (an event not occuring), where the total number of 
+                          'trials' (successes + failures) can be different on each row. 
+                          This page therefore asks for the user to choose two response
+                          variables."
+                    ),
+                    br(), br(), br(), br()
+                )
+            )
         ),
 
 
 ### DATA PANEL #################################################################
 
-        ### Display the data
+### *** we're gonna combine the two data panels into one, and shift the summary 
+###     stats stuff somewhere else... not exactly sure where yet. Maybe single 
+###     variable and two-variable visualisation.
+
         tabPanel("DATA",
             sidebarLayout(
 ## SIDEBAR PANEL (CHOOSE DATA) .................................................
                 sidebarPanel(width = 4,
-                    # Choose data source
-                    selectInput(
-                        inputId = "dataSelect", 
-                        label = "Choose a data source:",
-                        choices = datanames, selected = "games",
-                        multiple = FALSE, selectize = TRUE
-                        ),
-                    # REFRESH DATA button
-                    actionButton(inputId = "refreshData", label = "REFRESH DATA"),
-                    br(),
-                    br(),
+                    tags$h5("DATA"),
+                    HTML("On this page, you choose the data to work with by removing
+                    rows and columns you don't want, and adding new variables you need."),
+                    hr(),
+                    tags$h5("SUBSET DATA"),
+                    HTML("Subsetting the data is the process of removing 
+                            rows and columns that you don't need."),
+                    hr(),
                     # Choose rows by either numbers or variable values
                     radioButtons(
                         inputId = "rowsBy", 
@@ -117,20 +201,20 @@ ui <- fluidPage(
                             value = c(1, 1),
                             min = 1, max = 1, step = 1
                         )
-                   ),
+                    ),
                     # choose by variable values: conditional panel
                     conditionalPanel(
                         condition = "input.rowsBy == 'rowVar'",
                         textInput(
                             inputId = "rowVarFilter", 
                             label = "Type expressions below using logical operators:",
-                            placeholder = "e.g. contVar > 0 & catVar == 'A'"),
+                            placeholder = "e.g. continuous > 0 & categorical == 'A'"),
                         tags$ul(id = "rowVarButton",
                             tags$li(
                                 # text to advise on logical stuff to choose by variable 
                                 # values
                                 HTML("Use variable names and values from the selected 
-                                    data source. See Beckerman, Childs, Petchey (2017) 
+                                    data source. See 'Getting Started with R' 
                                     pp.63-65 for help.")
                             ),
                             tags$li(
@@ -144,9 +228,9 @@ ui <- fluidPage(
                         inputId = "colsBy", 
                         label = "COLUMNS | Choose by...",
                             choices = list(
-                                     "Column numbers" = "colNum", 
-                                     "Variable names" = "colVar"
-                                 ),
+                                    "Column numbers" = "colNum", 
+                                    "Variable names" = "colVar"
+                                ),
                         selected = "colNum"
                     ),
                     # choose columns by numbers (conditional panel)
@@ -169,15 +253,57 @@ ui <- fluidPage(
                             multiple = TRUE, selectize = TRUE
                         )
                     ),
-                    # br(),
-                    br()
+                    br(),
+                    hr(),
+                    tags$h5("MANIPULATE DATA"),
+                    HTML("Manipulating data means to add to, rearrange and 
+                            calculate quantities from the data."),
+                    hr(),
+                    # Add a variable to the data (mutate / group_by)
+                    checkboxInput(
+                        inputId = "addVar",
+                        label = "ADD A VARIABLE...",
+                        value = FALSE
+                    ),
+                    conditionalPanel(
+                        condition = "input.addVar == true",
+                        # selectInput(
+                        #     inputId = "addVarFilter", 
+                        #     label = "Choose variable:",
+                        #     choices = "A",
+                        #     multiple = FALSE, selectize = TRUE
+                        # ),
+                        textInput(
+                            inputId = "addVarName", 
+                            label = "Name of new variable:",
+                            placeholder = "e.g. logC"
+                        ),
+                        textInput(
+                            inputId = "addVarValue", 
+                            label = "Value of new variable:",
+                            placeholder = "e.g. log(continuous)"
+                        ),
+                        tags$ul(id = "addVarButton",
+                            tags$li(
+                                # text to advise on choosing variables & functions
+                                HTML("Use variable names and values from the selected 
+                                    data source. See 'Getting Started with R' 
+                                    p.67 for help.")
+                            ),
+                            tags$li(
+                                actionButton(inputId = "refreshAddVar", label = "ADD VARIABLE")
+                            )
+                        )
+                    ),
+                    br(),
+                    hr()
                 ),
 ## MAIN PANEL (DATA TABLE AND CODE) ............................................
                 mainPanel(
                     # Display outputs for data selection
-                    tabsetPanel(type = "tabs", selected = "OUTPUT",
+                    tabsetPanel(type = "tabs", selected = "DATA FRAME",
                         # Data frame as table
-                        tabPanel("OUTPUT",
+                        tabPanel("DATA FRAME",
                             DT::dataTableOutput("renderData"),
                             br(),
                             br()
@@ -198,25 +324,104 @@ ui <- fluidPage(
 
 ## DATA VISUALISATION PANEL ####################################################
 
-        tabPanel("DATA VISUALISATION",
-            sidebarLayout(
+        navbarMenu("DATA VISUALISATION",
+            tabPanel("ONE VARIABLE",
+                sidebarLayout(
 #...............................................................................
-                sidebarPanel(width = 4,
-                    # Choose data
-                    selectInput(inputId = "SelectedData", label = "Choose a data source:",
-                                choices = "Games", selected = "Games",
-                                multiple = FALSE, selectize = TRUE),
-                    HTML("HERE GO MORE OPTIONS")
-                ),
-#...............................................................................
-                mainPanel(
-                    tabsetPanel(type = "tabs", selected = "TAB1",
-                        # Tab1
-                        tabPanel("TAB1",
-                            HTML("HERE GOES SOME GRAPHS AND STUFF")
+                    sidebarPanel(width = 4,
+                        tags$h5("DATA VISUALISATION / one variable"),
+                        HTML("This page uses the data you've subsetted and manipulated
+                        on the previous page to make single variable plots. Anything 
+                        you do on this page won't affect the data you've chosen, but
+                        if you change what you've selected on the DATA page, it will 
+                        affect the plots on this page."),
+                        hr(),
+                        selectInput(
+                            inputId = "dataViz1VarFilter", 
+                            label = "Choose a variable to plot:",
+                            choices = "A",
+                            multiple = FALSE, selectize = TRUE
                         ),
-                        tabPanel("TAB2",
-                            HTML("HERE GOES MORE GRAPHS AND STUFF")
+                        HTML("Categorical variables will be plotted as a 
+                              stacked barplot. Continuous variables will
+                              be plotted as a histogram."),
+                        br(),
+                        sliderInput(
+                            inputId = "dataViz1XLim", 
+                            label = "X axis limits:",
+                            value = c(1, 1),
+                            min = 1, max = 1, step = 1
+                        ),
+                        numericInput(
+                            inputId = "dataViz1Bin",
+                            label = "Choose the number of bins to plot:",
+                            min = 3, max = 100, step = 1, value = 10
+                        ),
+                        br(),
+                        textInput(
+                            inputId = "dataViz1Fill", 
+                            label = "Type a colour name!",
+                            value = "steelblue4"),
+                        HTML("The <a href='https://bit.ly/1lE3ouh' target=blank>R colour guide</a> may help."),
+                        br(),
+                        br(),
+                        checkboxInput(
+                            inputId = "dataViz1Density",
+                            label = "Add a density plot?",
+                            value = FALSE
+                        ),
+                        br(),
+                        radioButtons(
+                            inputId = "dataViz1Theme", 
+                            label = "Choose a theme for the plot:",
+                            choices = list(
+                                "minimal" = "minimal", 
+                                "grey" = "grey",
+                                "classic" = "classic",
+                                "void" = "void"
+                            ),
+                            selected = "minimal"
+                        ),
+                        br(),
+                        hr()
+                    ),
+
+#...............................................................................
+                    mainPanel(
+                        tabsetPanel(type = "tabs", selected = "PLOT",
+                            tabPanel("PLOT",
+                                br(),
+                                plotOutput(outputId = "oneVarPlot")
+                            ),
+                            tabPanel("CODE",
+                                tags$div(id = "dataViz1Code",
+                                    htmlOutput("renderDataViz1Code")
+                                ),
+                                br(),
+                                br()
+                            )
+                        )
+                    )
+                )
+            ),
+            tabPanel("TWO VARIABLES",
+                sidebarLayout(
+#...............................................................................
+                    sidebarPanel(width = 4,
+                        # Choose data
+                        HTML("COMING SOON...")
+                    ),
+#...............................................................................
+                    mainPanel(
+                        tabsetPanel(type = "tabs", selected = "PLOT",
+                            tabPanel("PLOT",
+                                br(),
+                                HTML("PLOT COMING SOON...")
+                            ),
+                            tabPanel("CODE",
+                                br(),
+                                HTML("CODE COMING SOON...")
+                            )
                         )
                     )
                 )
@@ -235,20 +440,21 @@ ui <- fluidPage(
 #...............................................................................
                     sidebarPanel(width = 4,
                         # Choose data
-                        selectInput(inputId = "SelectedData", label = "Choose a data source:",
-                                    choices = "Games", selected = "Games",
-                                    multiple = FALSE, selectize = TRUE),
-                        HTML("HERE GO MORE OPTIONS")
+                        HTML("COMING SOON...")
                     ),
 #...............................................................................
                     mainPanel(
-                        tabsetPanel(type = "tabs", selected = "TAB1",
-                            # Tab1
-                            tabPanel("TAB1",
-                                HTML("HERE GOES SOME GAUSSIAN STUFF")
+                        tabsetPanel(type = "tabs", selected = "MODEL FIT",
+                            tabPanel("MODEL FIT",
+                                HTML("MODEL FIT COMING SOON...")
                             ),
-                            tabPanel("TAB2",
-                                HTML("HERE GOES MORE GAUSSIAN STUFF")
+                            tabPanel("MODEL RESULTS",
+                                br(),
+                                HTML("MODEL RESULTS COMING SOON...")
+                            ),
+                            tabPanel("CODE",
+                                br(),
+                                HTML("CODE COMING SOON...")
                             )
                         )
                     )
@@ -262,20 +468,22 @@ ui <- fluidPage(
 #...............................................................................
                     sidebarPanel(width = 4,
                         # Choose data
-                        selectInput(inputId = "SelectedData", label = "Choose a data source:",
-                                    choices = "Games", selected = "Games",
-                                    multiple = FALSE, selectize = TRUE),
-                        HTML("HERE GO MORE OPTIONS")
+                        HTML("COMING SOON...")
                     ),
 #...............................................................................
                     mainPanel(
-                        tabsetPanel(type = "tabs", selected = "TAB1",
-                            # Tab1
-                            tabPanel("TAB1",
-                                HTML("HERE GOES SOME POISSON STUFF")
+                        tabsetPanel(type = "tabs", selected = "MODEL FIT",
+                            tabPanel("MODEL FIT",
+                                br(),
+                                HTML("MODEL FIT COMING SOON...")
                             ),
-                            tabPanel("TAB2",
-                                HTML("HERE GOES MORE POISSON STUFF")
+                            tabPanel("MODEL RESULTS",
+                                br(),
+                                HTML("MODEL RESULTS COMING SOON...")
+                            ),
+                            tabPanel("CODE",
+                                br(),
+                                HTML("CODE COMING SOON...")
                             )
                         )
                     )
@@ -289,20 +497,23 @@ ui <- fluidPage(
 #...............................................................................
                     sidebarPanel(width = 4,
                         # Choose data
-                        selectInput(inputId = "SelectedData", label = "Choose a data source:",
-                                    choices = "Games", selected = "Games",
-                                    multiple = FALSE, selectize = TRUE),
                         HTML("HERE GO MORE OPTIONS")
                     ),
 #...............................................................................
                     mainPanel(
-                        tabsetPanel(type = "tabs", selected = "TAB1",
+                        tabsetPanel(type = "tabs", selected = "MODEL FIT",
                             # Tab1
-                            tabPanel("TAB1",
-                                HTML("HERE GOES SOME BINOMIAL STUFF")
+                            tabPanel("MODEL FIT",
+                                br(),
+                                HTML("MODEL FIT COMING SOON...")
                             ),
-                            tabPanel("TAB2",
-                                HTML("HERE GOES MORE BIOMIAL STUFF")
+                            tabPanel("MODEL RESULTS",
+                                br(),
+                                HTML("MODEL RESULTS COMING SOON...")
+                            ),
+                            tabPanel("CODE",
+                                br(),
+                                HTML("CODE COMING SOON...")
                             )
                         )
                     )

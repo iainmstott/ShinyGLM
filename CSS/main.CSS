@@ -7,6 +7,16 @@ input[type = 'text'] {
     font-family: "Consolas", monospace;
 }
 
+ul#dataButton {
+    padding: 0;
+}
+
+ul#dataButton li {
+    display: table-cell;
+    vertical-align: middle;
+    padding-right: 10px;
+}
+
 ul#rowVarButton {
     padding: 0;
 }
@@ -15,6 +25,25 @@ ul#rowVarButton li {
     display: table-cell;
     vertical-align: middle;
 }
+
+ul#addVarButton {
+    padding: 0;
+}
+
+ul#addVarButton li {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+ul#summariseDataButton {
+    padding: 0;
+}
+
+ul#summariseDataButton li {
+    display: table-cell;
+    vertical-align: middle;
+}
+
 
 /*.code {
     padding: 20;

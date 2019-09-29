@@ -23,8 +23,8 @@ shiny::shinyAppDir(appDir = "C:/Dropbox/Work/Software/Rshiny/ShinyGLiM",
 
 
 # Deploy the application to shinyapps.io
-rsconnect::deployApp(appDir = "C:/Dropbox/Work/Software/Rshiny/GLiM",
-                     appName = "ShinyGLiM", appId = "??????",
+rsconnect::deployApp(appDir = "C:/Dropbox/Work/Software/Rshiny/ShinyGLiM",
+                     appName = "ShinyGLiM", appId = "1249945",
                      account = "iainmstott", upload = TRUE)
 
 
