@@ -213,7 +213,7 @@ server <- function(input, output, session) {
                             options = list(dom = "ft", pageLength = -1),
                             rownames = FALSE, filter = "none")
         dT
-    })
+    }, na = "NA")
 
 
     ## CODE ........................................................................
@@ -416,7 +416,9 @@ server <- function(input, output, session) {
     })
 
     dataViz1VarLim <- reactive({
-        range(dataViz1Data()[, dataViz1Var()])
+        dat <- dataViz1Data()
+        var <- dataViz1Var()
+        range(dat[!is.na(dat[, var]), var])
     })
 
     observe({
