@@ -446,11 +446,13 @@ ui <- fluidPage(
                             label = "Type a colour name (points and outlines)",
                             value = "steelblue4"),
                         br(),
+                        br(),
                         textInput(
                             inputId = "dataViz2Fill", 
                             label = "Type another colour name (box and bar fills)",
                             value = "lightblue"),
                         HTML("The <a href='https://bit.ly/1lE3ouh' target=blank>R colour guide</a> may help."),
+                        br(),
                         br(),
                         br(),
                         textInput(
@@ -488,12 +490,12 @@ ui <- fluidPage(
                                 br(),
                                 plotOutput(outputId = "twoVarPlot")
                             ),
-                            tabPanel("CODE"
-                                # tags$div(id = "dataViz1Code",
-                                #     htmlOutput("renderDataViz1Code")
-                                # ),
-                                # br(),
-                                # br()
+                            tabPanel("CODE",
+                                tags$div(id = "dataViz2Code",
+                                    htmlOutput("renderDataViz2Code")
+                                ),
+                                br(),
+                                br()
                             )
                         )
                     )

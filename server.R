@@ -493,16 +493,22 @@ server <- function(input, output, session) {
         if (!allDat) dat <- "dataSubset"
         if (input$addVar == TRUE) dat <- "dataAddVar"
 
+        # variables
+        var <- dataViz1Var()
+        bin <- dataViz1Bin()
+        fill <- dataViz1Fill()
+        lim <- dataViz1XLim()
+
         ## build the histogram
         dataAddVarPlot1 <- paste0(
             "# initialise the plot with the data and aesthetics (aes)\n",
             "hist <- ggplot(", dat,
-            ", aes(x = ", dataViz1Var(), ")) +\n",
+            ", aes(x = ", var, ")) +\n",
             "    # plot a histogram (geom)\n",
             "    geom_histogram(aes(y = ..density..), bins = ",
-            dataViz1Bin(), ", fill = ", dataViz1Fill(), ") +\n",
+            bin, ", fill = '", fill, "') +\n",
             "    # tweak the aes\n",
-            "    xlim(", dataViz1XLim()[1], ", ", dataViz1XLim()[2], ") +\n",
+            "    xlim(", lim[1], ", ", lim[2], ") +\n",
             "    # change the theme\n",
             "    theme_", input$dataViz1Theme, "()\n\n",
             "# and plot!\n",
@@ -636,32 +642,32 @@ server <- function(input, output, session) {
                        yvar, input$dataViz2Ylab)
         xlab <- ifelse(input$dataViz2Xlab == "",
                        xvar, input$dataViz2Xlab)
-        hist0 <- ggplot(dat, aes_string(x = xvar, y = yvar))
+        plot0 <- ggplot(dat, aes_string(x = xvar, y = yvar))
         if (input$dataViz2Plot == "points") {
-            hist <- hist0 + geom_point(color = col, fill = fill, size = 5) +
+            plot <- plot0 + geom_point(color = col, fill = fill, size = 5) +
                 ylim(ylim[1], ylim[2]) +
                 ylab(ylab) + xlab(xlab)
         }
         if (input$dataViz2Plot == "boxplot") {
-            hist <- hist0 + geom_boxplot(color = col, fill = fill) +
+            plot <- plot0 + geom_boxplot(color = col, fill = fill) +
                 ylim(ylim[1], ylim[2]) +
                 ylab(ylab) + xlab(xlab)
         }
         if (input$dataViz2Plot == "violin") {
-            hist <- hist0 + geom_violin(color = col, fill = fill) +
+            plot <- plot0 + geom_violin(color = col, fill = fill) +
                 ylim(ylim[1], ylim[2]) +
                 ylab(ylab) + xlab(xlab)
         }
         if (input$dataViz2Plot == "barplot") {
-            hist <- hist0 + geom_bar(stat = "summary", fun.y = "mean", color = col, fill = fill) +
+            plot <- plot0 + geom_bar(stat = "summary", fun.y = "mean", color = col, fill = fill) +
                 ylim(ylim[1], ylim[2]) +
                 ylab(ylab) + xlab(xlab)
         }
-        if (input$dataViz2Theme == "minimal") hist <- hist + theme_minimal()
-        if (input$dataViz2Theme == "grey") hist <- hist + theme_gray()
-        if (input$dataViz2Theme == "classic") hist <- hist + theme_classic()
-        if (input$dataViz2Theme == "void") hist <- hist + theme_void()
-        hist
+        if (input$dataViz2Theme == "minimal") plot <- plot + theme_minimal()
+        if (input$dataViz2Theme == "grey") plot <- plot + theme_gray()
+        if (input$dataViz2Theme == "classic") plot <- plot + theme_classic()
+        if (input$dataViz2Theme == "void") plot <- plot + theme_void()
+        plot
     })
 
 
@@ -674,49 +680,64 @@ server <- function(input, output, session) {
 
     ## CODE ....................................................................
 
-    # displayDataViz1Code <- reactive({
-    #     # HTML bookend (start)
-    #     begin <- "<pre><code class = 'language-r'> \n"
+    displayDataViz2Code <- reactive({
+        # HTML bookend (start)
+        begin <- "<pre><code class = 'language-r'> \n"
 
-    #     # which data frame are we working with?
-    #     allDat <- all(dim(dataOut()$dFa) == dim(dataSelected()))
-    #     if (allDat) dat <- "data"
-    #     if (!allDat) dat <- "dataSubset"
-    #     if (input$addVar == TRUE) dat <- "dataAddVar"
+        # which data frame are we working with?
+        allDat <- all(dim(dataOut()$dFa) == dim(dataSelected()))
+        if (allDat) dat <- "data"
+        if (!allDat) dat <- "dataSubset"
+        if (input$addVar == TRUE) dat <- "dataAddVar"
 
-    #     ## build the histogram
-    #     dataAddVarPlot1 <- paste0(
-    #         "# initialise the plot with the data and aesthetics (aes)\n",
-    #         "hist <- ggplot(", dat,
-    #         ", aes(x = ", dataViz1Var(), ")) +\n",
-    #         "    # plot a histogram (geom)\n",
-    #         "    geom_histogram(aes(y = ..density..), bins = ",
-    #         dataViz1Bin(), ", fill = ", dataViz1Fill(), ") +\n",
-    #         "    # tweak the aes\n",
-    #         "    xlim(", dataViz1XLim()[1], ", ", dataViz1XLim()[2], ") +\n",
-    #         "    # change the theme\n",
-    #         "    theme_", input$dataViz1Theme, "()\n\n",
-    #         "# and plot!\n",
-    #         "hist")
+        # variables
+        yvar <- dataViz2YVar()
+        ylim <- dataViz2YLim()
+        xvar <- dataViz2XVar()
+        col <- dataViz2Color()
+        fill <- dataViz2Fill()
+        ylab <- ifelse(input$dataViz2Ylab == "",
+                       yvar, input$dataViz2Ylab)
+        xlab <- ifelse(input$dataViz2Xlab == "",
+                       xvar, input$dataViz2Xlab)
 
-    #     # add density if requested
-    #     if (input$dataViz1Density == TRUE) dens <- " + geom_density(color = 'white', fill = 'darkgrey', alpha = 0.5)\n"
-    #     if (input$dataViz1Density == FALSE) dens <- "\n"
-    #     # HTML bookend (end)
-    #     end <- "</code></pre>"
-    #     # add together
-    #     paste0(begin, dataAddVarPlot1, dens, end)
-    # })
+        # what type of plot are we working with?
+        if(input$dataViz2Plot == "points") plotChoice <- "geom_point"
+        if(input$dataViz2Plot == "boxplot") plotChoice <- "geom_boxplot"
+        if(input$dataViz2Plot == "violin") plotChoice <- "geom_violin"
+        if(input$dataViz2Plot == "bar") plotChoice <- "geom_bar"
 
-    # ## render the code for display using Prism to syntax highlight with 
-    # ## CSS and javascript
-    # output$renderDataViz1Code <- renderUI({
-    #     prismCodeBlock(displayDataViz1Code())
-    # })
-    # reactive({
-    #     dim(dataViz1Data())
-    #     dim(dataSelected())
-    # })
+        ## build the plot
+        dataAddVarPlot1 <- paste0(
+            "# initialise the plot with the data and aesthetics (aes)\n",
+            "plot <- ggplot(", dat,
+            ", aes(x = ", xvar, ", y = ", yvar, ")) +\n",
+            "    # plot a histogram (geom)\n",
+            "    ", plotChoice,"(color = '", col, 
+            "', fill = '", fill, "') +\n",
+            "    # tweak the aes\n",
+            "    ylim(", ylim[1], ", ", ylim[2], ") + ",
+            "ylab('", ylab,"') + xlab('", xlab, "') +\n",
+            "    # change the theme\n",
+            "    theme_", input$dataViz2Theme, "()\n\n",
+            "# and plot!\n",
+            "plot\n\n")
+
+        # HTML bookend (end)
+        end <- "</code></pre>"
+        # add together
+        paste0(begin, dataAddVarPlot1, end)
+    })
+
+    ## render the code for display using Prism to syntax highlight with 
+    ## CSS and javascript
+    output$renderDataViz2Code <- renderUI({
+        prismCodeBlock(displayDataViz2Code())
+    })
+    reactive({
+        dim(dataViz1Data())
+        dim(dataSelected())
+    })
 
 }
 
