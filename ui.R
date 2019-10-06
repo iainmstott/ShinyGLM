@@ -166,9 +166,6 @@ ui <- fluidPage(
 
 ### DATA PANEL #################################################################
 
-### *** we're gonna combine the two data panels into one, and shift the summary 
-###     stats stuff somewhere else... not exactly sure where yet. Maybe single 
-###     variable and two-variable visualisation.
 
         tabPanel("DATA",
             sidebarLayout(
@@ -342,9 +339,6 @@ ui <- fluidPage(
                             choices = "A",
                             multiple = FALSE, selectize = TRUE
                         ),
-                        HTML("Categorical variables will be plotted as a 
-                              stacked barplot. Continuous variables will
-                              be plotted as a histogram."),
                         br(),
                         sliderInput(
                             inputId = "dataViz1XLim", 
@@ -408,19 +402,98 @@ ui <- fluidPage(
                 sidebarLayout(
 #...............................................................................
                     sidebarPanel(width = 4,
-                        # Choose data
-                        HTML("COMING SOON...")
+                        tags$h5("DATA VISUALISATION / one variable"),
+                        HTML("This page uses the data you've subsetted and manipulated
+                        on the previous page to make two-variable plots. Anything 
+                        you do on this page won't affect the data you've chosen, but
+                        if you change what you've selected on the DATA page, it will 
+                        affect the plots on this page."),
+                        hr(),
+                        selectInput(
+                            inputId = "dataViz2YVarFilter", 
+                            label = "Choose a dependent (y) variable to plot:",
+                            choices = "A",
+                            multiple = FALSE, selectize = TRUE
+                        ),
+                        br(),
+                        sliderInput(
+                            inputId = "dataViz2YLim", 
+                            label = "Y axis limits:",
+                            value = c(1, 1),
+                            min = 1, max = 1, step = 1
+                        ),
+                        br(),
+                        selectInput(
+                            inputId = "dataViz2XVarFilter", 
+                            label = "Choose an independent (x) variable to plot:",
+                            choices = "A",
+                            multiple = FALSE, selectize = TRUE
+                        ),
+                        br(),
+                        radioButtons(
+                            inputId = "dataViz2Plot", 
+                            label = "Plot type:",
+                            choices = list(
+                                "points" = "points", 
+                                "boxplot" = "boxplot",
+                                "violin" = "violin",
+                                "barplot" = "barplot"
+                            ),
+                            selected = "points"
+                        ),
+                        textInput(
+                            inputId = "dataViz2Color", 
+                            label = "Type a colour name (points and outlines)",
+                            value = "steelblue4"),
+                        br(),
+                        textInput(
+                            inputId = "dataViz2Fill", 
+                            label = "Type another colour name (box and bar fills)",
+                            value = "lightblue"),
+                        HTML("The <a href='https://bit.ly/1lE3ouh' target=blank>R colour guide</a> may help."),
+                        br(),
+                        br(),
+                        textInput(
+                            inputId = "dataViz2Ylab", 
+                            label = "Y label",
+                            value = "",
+                            placeholder = "y label"),
+                        br(),
+                        textInput(
+                            inputId = "dataViz2Xlab", 
+                            label = "X label",
+                            value = "",
+                            placeholder = "x label"),
+                        br(),
+                        br(),
+                        radioButtons(
+                            inputId = "dataViz2Theme", 
+                            label = "Choose a theme for the plot:",
+                            choices = list(
+                                "minimal" = "minimal", 
+                                "grey" = "grey",
+                                "classic" = "classic",
+                                "void" = "void"
+                            ),
+                            selected = "minimal"
+                        ),
+                        br(),
+                        hr()
                     ),
+### ***
 #...............................................................................
                     mainPanel(
                         tabsetPanel(type = "tabs", selected = "PLOT",
                             tabPanel("PLOT",
                                 br(),
-                                HTML("PLOT COMING SOON...")
+                                plotOutput(outputId = "twoVarPlot")
                             ),
-                            tabPanel("CODE",
-                                br(),
-                                HTML("CODE COMING SOON...")
+                            tabPanel("CODE"
+                                # tags$div(id = "dataViz1Code",
+                                #     htmlOutput("renderDataViz1Code")
+                                # ),
+                                # br(),
+                                # br()
                             )
                         )
                     )

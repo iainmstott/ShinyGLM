@@ -226,7 +226,7 @@ server <- function(input, output, session) {
         read <- paste("# read in data", "\n",
                       "data <- read_csv('",
                       dataName,
-                      "'.csv)", "\n\n",
+                      ".csv')", "\n\n",
                       sep = "")
         ## choosing the rows and columns
         # rows by numbers
@@ -398,7 +398,7 @@ server <- function(input, output, session) {
         dataViz1ColNames <- dataViz1ColNames()
         if (input$dataViz1VarFilter == "A") select <- dataViz1ColNames[1]
         if (input$dataViz1VarFilter != "A") select <- input$dataViz1VarFilter
-        if (!(input$dataViz1VarFilter %in% dataViz1ColNames())) select <- dataViz1ColNames()[1]
+        if (!(input$dataViz1VarFilter %in% dataViz1ColNames)) select <- dataViz1ColNames[1]
         updateSelectInput(session, "dataViz1VarFilter",
             choices = dataViz1ColNames, selected = select
         )
@@ -526,6 +526,198 @@ server <- function(input, output, session) {
         dim(dataViz1Data())
         dim(dataSelected())
     })
+
+
+
+    ### TWO VARIABLE PLOTS #########################################################
+
+
+    ## SELECTING VARIABLE ..........................................................
+
+    ## data to use with one-variable graphs (only continuous variables)
+    dataViz2Data <- reactive({
+        dat <- dataOut()$dFa
+        dat
+    })
+
+    ## variable names in the chosen data
+    dataViz2YNames <- reactive({
+        dat <- dataViz2Data()
+        whichNumVars <- sapply(dat, is.numeric)
+        datNum <- dat[, whichNumVars]
+        names(datNum)
+    })
+
+    ## update variable selectInput to match chosen data
+    observe({
+        dataViz2YNames <- dataViz2YNames()
+        if (input$dataViz2YVarFilter == "A") select <- dataViz2YNames[1]
+        if (input$dataViz2YVarFilter != "A") select <- input$dataViz2YVarFilter
+        if (!(input$dataViz1VarFilter %in% dataViz2YNames)) select <- dataViz2YNames[1]
+        updateSelectInput(session, "dataViz2YVarFilter",
+            choices = dataViz2YNames, selected = select
+        )
+    })
+
+    # column variable chosen (debounce)
+    dataViz2YVar <- reactive({
+        if (input$dataViz2YVarFilter %in% dataViz2YNames()) {
+            var <- input$dataViz2YVarFilter
+        }
+        if (!(input$dataViz2YVarFilter %in% dataViz2YNames())) {
+            var <- dataViz2YNames()[1]
+        }
+        var
+    })
+
+    dataViz2YVarLim <- reactive({
+        dat <- dataViz2Data()
+        var <- dataViz2YVar()
+        range(dat[!is.na(dat[, var]), var])
+    })
+
+    observe({
+        if (input$dataViz2YVarFilter == "A") {
+            updateSliderInput(session, "dataViz2YLim",
+                min = 1, max = 1, value = c(1, 1))
+        }
+        if (input$dataViz2YVarFilter != "A") {
+            range <- dataViz2YVarLim()
+            width <- range[2] - range[1]
+            updateSliderInput(session, "dataViz2YLim",
+                min = (range[1] - width), max = (range[2] + width),
+                value = c(range[1], range[2])
+            )
+        }
+    })
+
+    dataViz2YLimSelect <- reactive({
+        input$dataViz2YLim
+    })
+    dataViz2YLim <- dataViz2YLimSelect %>% debounce(250)
+
+
+    observe({
+        colNames <- colNames()
+        updateSelectInput(session, "dataViz2XVarFilter",
+            choices = colNames, selected = colNames[1]
+        )
+    })
+    # column variables chosen (debounce)
+    dataViz2XVarSelect <- reactive({
+        input$dataViz2XVarFilter
+    })
+    dataViz2XVar <- dataViz2XVarSelect %>% debounce(50)
+
+
+    # column variable chosen (debounce)
+    dataViz2ColorSelect <- reactive({
+        input$dataViz2Color
+    })
+    dataViz2Color <- dataViz2ColorSelect %>% debounce(1000)
+
+    # column variable chosen (debounce)
+    dataViz2FillSelect <- reactive({
+        input$dataViz2Fill
+    })
+    dataViz2Fill <- dataViz2FillSelect %>% debounce(1000)
+
+
+    # SINGLE VARIABLE PLOT
+    dataViz2Plot <- reactive({
+        # if the variable is categorical, stacked barplot
+        dat <- dataViz2Data()
+        yvar <- dataViz2YVar()
+        ylim <- dataViz2YLim()
+        xvar <- dataViz2XVar()
+        col <- dataViz2Color()
+        fill <- dataViz2Fill()
+        ylab <- ifelse(input$dataViz2Ylab == "",
+                       yvar, input$dataViz2Ylab)
+        xlab <- ifelse(input$dataViz2Xlab == "",
+                       xvar, input$dataViz2Xlab)
+        hist0 <- ggplot(dat, aes_string(x = xvar, y = yvar))
+        if (input$dataViz2Plot == "points") {
+            hist <- hist0 + geom_point(color = col, fill = fill, size = 5) +
+                ylim(ylim[1], ylim[2]) +
+                ylab(ylab) + xlab(xlab)
+        }
+        if (input$dataViz2Plot == "boxplot") {
+            hist <- hist0 + geom_boxplot(color = col, fill = fill) +
+                ylim(ylim[1], ylim[2]) +
+                ylab(ylab) + xlab(xlab)
+        }
+        if (input$dataViz2Plot == "violin") {
+            hist <- hist0 + geom_violin(color = col, fill = fill) +
+                ylim(ylim[1], ylim[2]) +
+                ylab(ylab) + xlab(xlab)
+        }
+        if (input$dataViz2Plot == "barplot") {
+            hist <- hist0 + geom_bar(stat = "summary", fun.y = "mean", color = col, fill = fill) +
+                ylim(ylim[1], ylim[2]) +
+                ylab(ylab) + xlab(xlab)
+        }
+        if (input$dataViz2Theme == "minimal") hist <- hist + theme_minimal()
+        if (input$dataViz2Theme == "grey") hist <- hist + theme_gray()
+        if (input$dataViz2Theme == "classic") hist <- hist + theme_classic()
+        if (input$dataViz2Theme == "void") hist <- hist + theme_void()
+        hist
+    })
+
+
+    ## RENDERING ...............................................................
+
+    # render the plot for display
+    output$twoVarPlot <- renderPlot({
+        dataViz2Plot()
+    })
+
+    ## CODE ....................................................................
+
+    # displayDataViz1Code <- reactive({
+    #     # HTML bookend (start)
+    #     begin <- "<pre><code class = 'language-r'> \n"
+
+    #     # which data frame are we working with?
+    #     allDat <- all(dim(dataOut()$dFa) == dim(dataSelected()))
+    #     if (allDat) dat <- "data"
+    #     if (!allDat) dat <- "dataSubset"
+    #     if (input$addVar == TRUE) dat <- "dataAddVar"
+
+    #     ## build the histogram
+    #     dataAddVarPlot1 <- paste0(
+    #         "# initialise the plot with the data and aesthetics (aes)\n",
+    #         "hist <- ggplot(", dat,
+    #         ", aes(x = ", dataViz1Var(), ")) +\n",
+    #         "    # plot a histogram (geom)\n",
+    #         "    geom_histogram(aes(y = ..density..), bins = ",
+    #         dataViz1Bin(), ", fill = ", dataViz1Fill(), ") +\n",
+    #         "    # tweak the aes\n",
+    #         "    xlim(", dataViz1XLim()[1], ", ", dataViz1XLim()[2], ") +\n",
+    #         "    # change the theme\n",
+    #         "    theme_", input$dataViz1Theme, "()\n\n",
+    #         "# and plot!\n",
+    #         "hist")
+
+    #     # add density if requested
+    #     if (input$dataViz1Density == TRUE) dens <- " + geom_density(color = 'white', fill = 'darkgrey', alpha = 0.5)\n"
+    #     if (input$dataViz1Density == FALSE) dens <- "\n"
+    #     # HTML bookend (end)
+    #     end <- "</code></pre>"
+    #     # add together
+    #     paste0(begin, dataAddVarPlot1, dens, end)
+    # })
+
+    # ## render the code for display using Prism to syntax highlight with 
+    # ## CSS and javascript
+    # output$renderDataViz1Code <- renderUI({
+    #     prismCodeBlock(displayDataViz1Code())
+    # })
+    # reactive({
+    #     dim(dataViz1Data())
+    #     dim(dataSelected())
+    # })
+
 }
 
 
