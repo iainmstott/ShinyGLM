@@ -629,7 +629,7 @@ server <- function(input, output, session) {
     dataViz2Fill <- dataViz2FillSelect %>% debounce(1000)
 
 
-    # SINGLE VARIABLE PLOT
+    # TWO VARIABLE PLOT
     dataViz2Plot <- reactive({
         # if the variable is categorical, stacked barplot
         dat <- dataViz2Data()
@@ -702,22 +702,22 @@ server <- function(input, output, session) {
                        xvar, input$dataViz2Xlab)
 
         # what type of plot are we working with?
-        if(input$dataViz2Plot == "points") plotChoice <- "geom_point"
-        if(input$dataViz2Plot == "boxplot") plotChoice <- "geom_boxplot"
-        if(input$dataViz2Plot == "violin") plotChoice <- "geom_violin"
-        if(input$dataViz2Plot == "bar") plotChoice <- "geom_bar"
+        if (input$dataViz2Plot == "points") plotChoice <- "geom_point"
+        if (input$dataViz2Plot == "boxplot") plotChoice <- "geom_boxplot"
+        if (input$dataViz2Plot == "violin") plotChoice <- "geom_violin"
+        if (input$dataViz2Plot == "barplot") plotChoice <- "geom_bar"
 
         ## build the plot
-        dataAddVarPlot1 <- paste0(
+        dataAddVarPlot2 <- paste0(
             "# initialise the plot with the data and aesthetics (aes)\n",
             "plot <- ggplot(", dat,
             ", aes(x = ", xvar, ", y = ", yvar, ")) +\n",
             "    # plot a histogram (geom)\n",
-            "    ", plotChoice,"(color = '", col, 
+            "    ", plotChoice, "(color = '", col, 
             "', fill = '", fill, "') +\n",
             "    # tweak the aes\n",
             "    ylim(", ylim[1], ", ", ylim[2], ") + ",
-            "ylab('", ylab,"') + xlab('", xlab, "') +\n",
+            "ylab('", ylab, "') + xlab('", xlab, "') +\n",
             "    # change the theme\n",
             "    theme_", input$dataViz2Theme, "()\n\n",
             "# and plot!\n",
@@ -726,7 +726,7 @@ server <- function(input, output, session) {
         # HTML bookend (end)
         end <- "</code></pre>"
         # add together
-        paste0(begin, dataAddVarPlot1, end)
+        paste0(begin, dataAddVarPlot2, end)
     })
 
     ## render the code for display using Prism to syntax highlight with 
