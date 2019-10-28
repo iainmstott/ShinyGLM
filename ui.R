@@ -402,7 +402,7 @@ ui <- fluidPage(
                 sidebarLayout(
 #...............................................................................
                     sidebarPanel(width = 4,
-                        tags$h5("DATA VISUALISATION / one variable"),
+                        tags$h5("DATA VISUALISATION / two variables"),
                         HTML("This page uses the data you've subsetted and manipulated
                         on the previous page to make two-variable plots. Anything 
                         you do on this page won't affect the data you've chosen, but
@@ -411,28 +411,32 @@ ui <- fluidPage(
                         hr(),
                         selectInput(
                             inputId = "dataViz2YVarFilter", 
-                            label = "Choose a dependent (y) variable to plot:",
+                            label = "Choose a DEPENDENT (y) variable to plot",
                             choices = "A",
                             multiple = FALSE, selectize = TRUE
                         ),
-                        br(),
                         sliderInput(
                             inputId = "dataViz2YLim", 
-                            label = "Y axis limits:",
+                            label = "Y axis limits",
                             value = c(1, 1),
                             min = 1, max = 1, step = 1
                         ),
-                        br(),
                         selectInput(
                             inputId = "dataViz2XVarFilter", 
-                            label = "Choose an independent (x) variable to plot:",
+                            label = "Choose an INDEPENDENT (x) variable to plot",
+                            choices = "A",
+                            multiple = FALSE, selectize = TRUE
+                        ),
+                        selectInput(
+                            inputId = "dataViz2ZVarFilter", 
+                            label = "Choose a GROUPING variable to plot",
                             choices = "A",
                             multiple = FALSE, selectize = TRUE
                         ),
                         br(),
                         radioButtons(
                             inputId = "dataViz2Plot", 
-                            label = "Plot type:",
+                            label = "Plot TYPE:",
                             choices = list(
                                 "points" = "points", 
                                 "boxplot" = "boxplot",
@@ -441,15 +445,25 @@ ui <- fluidPage(
                             ),
                             selected = "points"
                         ),
+                        br(),
                         textInput(
                             inputId = "dataViz2Color", 
-                            label = "Type a colour name (points and outlines)",
+                            label = "COLOR name (points & lines)",
                             value = "steelblue4"),
-                        br(),
-                        br(),
+                        conditionalPanel(
+                            condition = "input.dataViz2ZVarFilter !== 'None'",
+                            HTML("If a grouping variable is being used, specify the name of a 
+                            <a href='https://www.datanovia.com/en/wp-content/uploads/dn-tutorials/ggplot2/figures/0101-rcolorbrewer-palette-rcolorbrewer-palettes-1.png' target=blank>
+                            COLOR BREWER PALETTE
+                            </a> instead (under COLOR for points; under FILL for 
+                            boxplots, violin plots & barplots). This gives multiple
+                            colors for the multiple groups. If the palette name
+                            is invalid, everything will be a default green.
+                            </br></br>")
+                        ),
                         textInput(
                             inputId = "dataViz2Fill", 
-                            label = "Type another colour name (box and bar fills)",
+                            label = "FILL color name (boxes & bars)",
                             value = "lightblue"),
                         HTML("The <a href='https://bit.ly/1lE3ouh' target=blank>R colour guide</a> may help."),
                         br(),
@@ -460,17 +474,15 @@ ui <- fluidPage(
                             label = "Y label",
                             value = "",
                             placeholder = "y label"),
-                        br(),
                         textInput(
                             inputId = "dataViz2Xlab", 
                             label = "X label",
                             value = "",
                             placeholder = "x label"),
                         br(),
-                        br(),
                         radioButtons(
                             inputId = "dataViz2Theme", 
-                            label = "Choose a theme for the plot:",
+                            label = "Choose a THEME for the plot:",
                             choices = list(
                                 "minimal" = "minimal", 
                                 "grey" = "grey",
@@ -514,22 +526,59 @@ ui <- fluidPage(
                 sidebarLayout(
 #...............................................................................
                     sidebarPanel(width = 4,
-                        # Choose data
-                        HTML("COMING SOON...")
+                        tags$h5("DATA ANALYSIS / Gaussian"),
+                        HTML("This page uses the variables you've plotted on
+                        the 'Data Visualisation / two variables' page in a 
+                        Gaussian linear model. Anything you do on this page 
+                        won't affect the data you've chosen, or the variables 
+                        you've plotted, but if you change what you've selected 
+                        on the DATA page, or change the variables you plot, it 
+                        will affect what's displayed here."),
+                        hr(),
+                        htmlOutput("yVarText"),
+                        htmlOutput("xVarText"),
+                        htmlOutput("zVarText"),
+                        br(),
+                        conditionalPanel(
+                            condition = "input.dataViz2ZVarFilter !== 'None'",
+                            checkboxInput(
+                                inputId = "interaction",
+                                label = "Include an INTERACTION term?",
+                                value = FALSE
+                            )
+                        ),
+                        br(),
+                        HTML("Note: it's best to specify a model using e.g. "),
+                        htmlOutput("renderExampleCode"),
+                        HTML("instead of <b>y</b>, <b>x1</b> and <b>x2</b>. 
+                        It's just easier to take the latter approach here because 
+                        of the way the app works!")
                     ),
 #...............................................................................
                     mainPanel(
                         tabsetPanel(type = "tabs", selected = "MODEL FIT",
                             tabPanel("MODEL FIT",
+                                br(),
                                 HTML("MODEL FIT COMING SOON...")
                             ),
                             tabPanel("MODEL RESULTS",
                                 br(),
-                                HTML("MODEL RESULTS COMING SOON...")
+                                h5("Model summary (parameters)"),
+                                verbatimTextOutput("Glm"),
+                                # br(),
+                                # h5("Anova table (significance)"),
+                                # verbatimTextOutput("Glm_anova"),
+                                # br(),
+                                # h5("AIC"),
+                                # verbatimTextOutput("Glm_AIC"),
+                                br()
                             ),
                             tabPanel("CODE",
+                                tags$div(id = "GlmCode",
+                                    htmlOutput("renderGlmCode")
+                                ),
                                 br(),
-                                HTML("CODE COMING SOON...")
+                                br()
                             )
                         )
                     )

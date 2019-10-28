@@ -5,6 +5,6 @@ account: iainmstott
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1249945
-bundleId: 2473924
+bundleId: 2474557
 url: https://iainmstott.shinyapps.io/ShinyGLiM/
-when: 1570381573.57983
+when: 1570402390.64282

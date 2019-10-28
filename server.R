@@ -553,7 +553,6 @@ server <- function(input, output, session) {
         datNum <- dat[, whichNumVars]
         names(datNum)
     })
-
     ## update variable selectInput to match chosen data
     observe({
         dataViz2YNames <- dataViz2YNames()
@@ -564,7 +563,6 @@ server <- function(input, output, session) {
             choices = dataViz2YNames, selected = select
         )
     })
-
     # column variable chosen (debounce)
     dataViz2YVar <- reactive({
         if (input$dataViz2YVarFilter %in% dataViz2YNames()) {
@@ -581,7 +579,6 @@ server <- function(input, output, session) {
         var <- dataViz2YVar()
         range(dat[!is.na(dat[, var]), var])
     })
-
     observe({
         if (input$dataViz2YVarFilter == "A") {
             updateSliderInput(session, "dataViz2YLim",
@@ -596,12 +593,10 @@ server <- function(input, output, session) {
             )
         }
     })
-
     dataViz2YLimSelect <- reactive({
         input$dataViz2YLim
     })
     dataViz2YLim <- dataViz2YLimSelect %>% debounce(250)
-
 
     observe({
         colNames <- colNames()
@@ -615,8 +610,27 @@ server <- function(input, output, session) {
     })
     dataViz2XVar <- dataViz2XVarSelect %>% debounce(50)
 
+    ## categorical variable names in the chosen data
+    dataViz2ZNames <- reactive({
+        dat <- dataViz2Data()
+        whichNumVars <- !sapply(dat, is.numeric)
+        datNum <- dat[, whichNumVars]
+        names(datNum)
+    })
+    observe({
+        colNames <- c("None", dataViz2ZNames())
+        updateSelectInput(session, "dataViz2ZVarFilter",
+            choices = colNames, selected = colNames[1]
+        )
+    })
+    # column variables chosen (debounce)
+    dataViz2ZVarSelect <- reactive({
+        input$dataViz2ZVarFilter
+    })
+    dataViz2ZVar <- dataViz2ZVarSelect %>% debounce(50)
 
-    # column variable chosen (debounce)
+
+    # colour chosen (debounce)
     dataViz2ColorSelect <- reactive({
         input$dataViz2Color
     })
@@ -636,32 +650,72 @@ server <- function(input, output, session) {
         yvar <- dataViz2YVar()
         ylim <- dataViz2YLim()
         xvar <- dataViz2XVar()
+        zvar <- dataViz2ZVar()
         col <- dataViz2Color()
         fill <- dataViz2Fill()
         ylab <- ifelse(input$dataViz2Ylab == "",
                        yvar, input$dataViz2Ylab)
         xlab <- ifelse(input$dataViz2Xlab == "",
                        xvar, input$dataViz2Xlab)
-        plot0 <- ggplot(dat, aes_string(x = xvar, y = yvar))
         if (input$dataViz2Plot == "points") {
-            plot <- plot0 + geom_point(color = col, fill = fill, size = 5) +
-                ylim(ylim[1], ylim[2]) +
-                ylab(ylab) + xlab(xlab)
+            if (input$dataViz2ZVarFilter == "None") {
+                plot <- ggplot(dat, aes_string(x = xvar, y = yvar)) +
+                    geom_point(color = col, fill = fill, size = 5) +
+                    ylim(ylim[1], ylim[2]) +
+                    ylab(ylab) + xlab(xlab)
+            }
+            if (input$dataViz2ZVarFilter != "None") {
+                plot <- ggplot(dat, aes_string(x = xvar, y = yvar, color = zvar)) +
+                    geom_point(fill = fill, size = 5) +
+                    scale_color_brewer(palette = col) +
+                    ylim(ylim[1], ylim[2]) +
+                    ylab(ylab) + xlab(xlab)
+            }
         }
         if (input$dataViz2Plot == "boxplot") {
-            plot <- plot0 + geom_boxplot(color = col, fill = fill) +
-                ylim(ylim[1], ylim[2]) +
-                ylab(ylab) + xlab(xlab)
+            if (input$dataViz2ZVarFilter == "None") {
+                plot <- ggplot(dat, aes_string(x = xvar, y = yvar)) +
+                    geom_boxplot(color = col, fill = fill) +
+                    ylim(ylim[1], ylim[2]) +
+                    ylab(ylab) + xlab(xlab)
+            }
+            if (input$dataViz2ZVarFilter != "None") {
+                plot <- ggplot(dat, aes_string(x = xvar, y = yvar, fill = zvar)) +
+                    geom_boxplot(color = col) +
+                    scale_fill_brewer(palette = fill) +
+                    ylim(ylim[1], ylim[2]) +
+                    ylab(ylab) + xlab(xlab)
+            }
         }
         if (input$dataViz2Plot == "violin") {
-            plot <- plot0 + geom_violin(color = col, fill = fill) +
-                ylim(ylim[1], ylim[2]) +
-                ylab(ylab) + xlab(xlab)
+            if (input$dataViz2ZVarFilter == "None") {
+                plot <- ggplot(dat, aes_string(x = xvar, y = yvar)) +
+                    geom_violin(color = col, fill = fill) +
+                    ylim(ylim[1], ylim[2]) +
+                    ylab(ylab) + xlab(xlab)
+            }
+            if (input$dataViz2ZVarFilter != "None") {
+                plot <- ggplot(dat, aes_string(x = xvar, y = yvar, fill = zvar)) +
+                    geom_violin(color = col) +
+                    scale_fill_brewer(palette = fill) +
+                    ylim(ylim[1], ylim[2]) +
+                    ylab(ylab) + xlab(xlab)
+            }
         }
         if (input$dataViz2Plot == "barplot") {
-            plot <- plot0 + geom_bar(stat = "summary", fun.y = "mean", color = col, fill = fill) +
-                ylim(ylim[1], ylim[2]) +
-                ylab(ylab) + xlab(xlab)
+            if (input$dataViz2ZVarFilter == "None") {
+                plot <- ggplot(dat, aes_string(x = xvar, y = yvar)) +
+                    geom_bar(stat = "summary", fun.y = "mean", color = col, fill = fill) +
+                    ylim(ylim[1], ylim[2]) +
+                    ylab(ylab) + xlab(xlab)
+            }
+            if (input$dataViz2ZVarFilter != "None") {
+                plot <- ggplot(dat, aes_string(x = xvar, y = yvar, fill = zvar)) +
+                    geom_bar(stat = "summary", fun.y = "mean", color = col, position = "dodge") +
+                    scale_fill_brewer(palette = fill) +
+                    ylim(ylim[1], ylim[2]) +
+                    ylab(ylab) + xlab(xlab)
+            }
         }
         if (input$dataViz2Theme == "minimal") plot <- plot + theme_minimal()
         if (input$dataViz2Theme == "grey") plot <- plot + theme_gray()
@@ -707,22 +761,44 @@ server <- function(input, output, session) {
         if (input$dataViz2Plot == "violin") plotChoice <- "geom_violin"
         if (input$dataViz2Plot == "barplot") plotChoice <- "geom_bar"
 
+        # data, aes
+        if (input$dataViz2ZVarFilter == "None") {
+            data_aes <- paste0("plot <- ggplot(", dat, ", aes(x = ", xvar, ", y = ", yvar, ")) +\n")
+            addgeom <- paste0("    ", plotChoice, "(color = '", col, "', fill = '", fill, "') +\n")
+            finalplot <- "plot\n\n"
+        }
+        if (input$dataViz2ZVarFilter != "None") {
+            if (plotChoice == "geom_point") {
+                data_aes <- paste0("plot <- ggplot(", dat, ", aes(x = ", xvar, ", y = ", yvar, ", color = ", input$dataViz2ZVarFilter, ")) +\n")
+                addgeom <- paste0("    ", plotChoice, "() +\n")
+                finalplot <- paste0("plot + scale_color_brewer(palette = '", col, "')\n\n")
+            }
+            if (plotChoice != "geom_point") {
+                data_aes <- paste0("plot <- ggplot(", dat, ", aes(x = ", xvar, ", y = ", yvar, ", fill = ", input$dataViz2ZVarFilter, ")) +\n")
+                addgeom <- paste0("    ", plotChoice, "(color = '", col, "') +\n")
+                finalplot <- paste0("plot + scale_fill_brewer(palette = '", fill, "')\n\n")
+            }
+            if (plotChoice == "geom_bar") {
+                addgeom <- paste0("    ", plotChoice, "(stat = 'summary', fun.y = 'mean', color = '", col, "', position = 'dodge') +\n")
+            }
+        }
+        aestweak <- paste0("    ylim(", ylim[1], ", ", ylim[2], ") + ",
+                           "ylab('", ylab, "') + xlab('", xlab, "') +\n")
+        themechange <- paste0("    theme_", input$dataViz2Theme, "()\n\n")
+
         ## build the plot
         dataAddVarPlot2 <- paste0(
             "# initialise the plot with the data and aesthetics (aes)\n",
-            "plot <- ggplot(", dat,
-            ", aes(x = ", xvar, ", y = ", yvar, ")) +\n",
-            "    # plot a histogram (geom)\n",
-            "    ", plotChoice, "(color = '", col, 
-            "', fill = '", fill, "') +\n",
+            data_aes, 
+            "    # add the geometry\n",
+            addgeom,
             "    # tweak the aes\n",
-            "    ylim(", ylim[1], ", ", ylim[2], ") + ",
-            "ylab('", ylab, "') + xlab('", xlab, "') +\n",
+            aestweak,
             "    # change the theme\n",
-            "    theme_", input$dataViz2Theme, "()\n\n",
+            themechange,
             "# and plot!\n",
-            "plot\n\n")
-
+            finalplot
+        )
         # HTML bookend (end)
         end <- "</code></pre>"
         # add together
@@ -739,12 +815,125 @@ server <- function(input, output, session) {
         dim(dataSelected())
     })
 
+
+
+    ### DATA ANALYSIS / GAUSSIAN ###################################################
+
+
+    ## FIT MODEL ...............................................................
+
+    # variables are taken from the data visualisation page
+    output$yVarText <- renderText({
+        ych <- input$dataViz2YVarFilter
+        paste("Dependent variable <b>y = ", ych, "</b>")
+    })
+    output$xVarText <- renderText({
+        xch <- input$dataViz2XVarFilter
+        paste("Independent variable <b>x1 = ", xch, "</b>")
+    })
+    output$zVarText <- renderText({
+        zch <- input$dataViz2ZVarFilter
+        paste("Grouping variable <b>x2 = ", zch, "</b>")
+    })
+
+    # Fit lm using variables
+    Gmodel <- reactive({
+        dat <- dataViz2Data()
+        y <- pull(dat, dataViz2YVar())
+        x1 <- pull(dat, dataViz2XVar())
+        if (dataViz2ZVar() == "None") {
+            Gmodel <- lm(y ~ x1)
+        }
+        if (dataViz2ZVar() != "None") {
+            x2 <- pull(dat, dataViz2ZVar())
+            if (input$interaction == FALSE) {
+                Gmodel <- lm(y ~ x1 + x2)
+            }
+            if (input$interaction == TRUE) {
+                Gmodel <- lm(y ~ x1 * x2)
+            }
+        }
+        Gmodel
+    })
+
+    ## RENDERING ...............................................................
+
+    ## Render summary to print (verbatim)
+    output$Glm <- renderPrint({
+        summary(Gmodel())
+    })
+
+    output$Glm_anova <- renderPrint({
+        anova(Gmodel())
+    })
+
+    output$Glm_AIC <- renderPrint({
+        AIC(Gmodel())
+    })
+
+    ## CODE ....................................................................
+
+    displayGlmCode <- reactive({
+        begin <- "<pre><code class = 'language-r'> \n"
+
+        allDat <- all(dim(dataOut()$dFa) == dim(dataSelected()))
+        if (allDat) dat <- "data"
+        if (!allDat) dat <- "dataSubset"
+        if (input$addVar == TRUE) dat <- "dataAddVar"
+
+        yv <- paste0("y <- pull(", dat, ", ", input$dataViz2YVarFilter, ")\n")
+        x1v <- paste0("x1 <- pull(", dat, ", ", input$dataViz2XVarFilter, ")\n")
+        if (dataViz2ZVar() == "None") {
+            x2v <- ""
+            Glm_comment <- "# fit model\n"
+            Glm <- "G_glm <- lm(y ~ x1)\n"
+        }
+        if (dataViz2ZVar() != "None") {
+            x2v <- paste0("x2 <- pull(", dat, ", ", input$dataViz2ZVarFilter, ")\n")
+            if (input$interaction == FALSE) {
+                Glm_comment <- "# fit model WITHOUT interaction\n"
+                Glm <- "G_glm <- lm(y ~ x1 + x2)\n"
+            }
+            if (input$interaction == TRUE) {
+                Glm_comment <- "# fit model WITH interaction\n"
+                Glm <- "G_glm <- lm(y ~ x1 * x2)\n"
+            }
+        }
+        output_comment <- "# summary (parameters)\n"
+        output <- "summary(G_glm)\n"
+        anova_comment <- "# anova (significance)\n"
+        anova  <- "summary(G_glm)\n"
+        AIC_comment <- "# AIC\n"
+        AIC <- "AIC(G_glm)\n"
+        end <- "</code></pre>"
+        paste0(
+            begin,
+            "# select variables\n", yv, x1v, x2v,
+            "\n", Glm_comment, Glm,
+            "\n", output_comment, output, 
+            # "\n", anova_comment, anova, 
+            # "\n", AIC_comment, AIC, "\n",
+            "\n", end
+        )
+    })
+
+    ## render the code for display using Prism to syntax highlight with 
+    ## CSS and javascript
+    output$renderGlmCode <- renderUI({
+        prismCodeBlock(displayGlmCode())
+    })
+
+    ## render example code for explanation about using variable names and data in lm
+    output$renderExampleCode <- renderUI({
+        prismCodeBlock("<pre><code class = 'language-r'>model <- lm(ffold ~ pballs * gender, data = data)\n</code></pre>")
+    })
+
+
+### END ########################################################################
+
 }
 
 
 
-# ggplot(N, aes(x = "", y = N, fill = group)) +
-#     geom_bar(stat = "identity") +
-#     scale_fill_brewer(palette = "Set1") +
-#     theme_minimal()
+
 
