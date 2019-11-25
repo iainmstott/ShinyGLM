@@ -6,6 +6,7 @@ library(DT)
 library(readr)
 library(dplyr)
 library(ggplot2)
+library(ggfortify)
 
 datafiles <- (list.files("data"))
 data <- lapply(datafiles, function(dat){ read_csv(paste("data/", dat, sep = "")) })

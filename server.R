@@ -599,7 +599,7 @@ server <- function(input, output, session) {
     dataViz2YLim <- dataViz2YLimSelect %>% debounce(250)
 
     observe({
-        colNames <- colNames()
+        colNames <- names(dataViz2Data())
         updateSelectInput(session, "dataViz2XVarFilter",
             choices = colNames, selected = colNames[1]
         )
@@ -823,15 +823,15 @@ server <- function(input, output, session) {
     ## FIT MODEL ...............................................................
 
     # variables are taken from the data visualisation page
-    output$yVarText <- renderText({
+    output$GyVarText <- renderText({
         ych <- input$dataViz2YVarFilter
         paste("Dependent variable <b>y = ", ych, "</b>")
     })
-    output$xVarText <- renderText({
+    output$GxVarText <- renderText({
         xch <- input$dataViz2XVarFilter
         paste("Independent variable <b>x1 = ", xch, "</b>")
     })
-    output$zVarText <- renderText({
+    output$GzVarText <- renderText({
         zch <- input$dataViz2ZVarFilter
         paste("Grouping variable <b>x2 = ", zch, "</b>")
     })
@@ -842,38 +842,47 @@ server <- function(input, output, session) {
         y <- pull(dat, dataViz2YVar())
         x1 <- pull(dat, dataViz2XVar())
         if (dataViz2ZVar() == "None") {
-            Gmodel <- lm(y ~ x1)
+            model <- lm(y ~ x1)
         }
         if (dataViz2ZVar() != "None") {
             x2 <- pull(dat, dataViz2ZVar())
-            if (input$interaction == FALSE) {
-                Gmodel <- lm(y ~ x1 + x2)
+            if (input$Ginteraction == FALSE) {
+                model <- lm(y ~ x1 + x2)
             }
-            if (input$interaction == TRUE) {
-                Gmodel <- lm(y ~ x1 * x2)
+            if (input$Ginteraction == TRUE) {
+                model <- lm(y ~ x1 * x2)
             }
         }
-        Gmodel
+        model
+    })
+
+    ## disgnostic plots
+    Gcheckplots <- reactive({
+        autoplot(Gmodel()) + theme_minimal()
     })
 
     ## RENDERING ...............................................................
 
     ## Render summary to print (verbatim)
-    output$Glm <- renderPrint({
+    output$Gglm <- renderPrint({
         summary(Gmodel())
     })
 
-    output$Glm_anova <- renderPrint({
+    output$Gglm_anova <- renderPrint({
         anova(Gmodel())
     })
 
-    output$Glm_AIC <- renderPrint({
+    output$Gglm_AIC <- renderPrint({
         AIC(Gmodel())
+    })
+
+    output$Gcheckplots <- renderPlot({
+        Gcheckplots()
     })
 
     ## CODE ....................................................................
 
-    displayGlmCode <- reactive({
+    displayGglmCode <- reactive({
         begin <- "<pre><code class = 'language-r'> \n"
 
         allDat <- all(dim(dataOut()$dFa) == dim(dataSelected()))
@@ -890,19 +899,21 @@ server <- function(input, output, session) {
         }
         if (dataViz2ZVar() != "None") {
             x2v <- paste0("x2 <- pull(", dat, ", ", input$dataViz2ZVarFilter, ")\n")
-            if (input$interaction == FALSE) {
+            if (input$Ginteraction == FALSE) {
                 Glm_comment <- "# fit model WITHOUT interaction\n"
                 Glm <- "G_glm <- lm(y ~ x1 + x2)\n"
             }
-            if (input$interaction == TRUE) {
+            if (input$Ginteraction == TRUE) {
                 Glm_comment <- "# fit model WITH interaction\n"
                 Glm <- "G_glm <- lm(y ~ x1 * x2)\n"
             }
         }
+        fit_comment <- "# model fit plots\n"
+        fit <- "autoplot(G_glm) + theme_minimal()\n"
         output_comment <- "# summary (parameters)\n"
         output <- "summary(G_glm)\n"
         anova_comment <- "# anova (significance)\n"
-        anova  <- "summary(G_glm)\n"
+        anova  <- "anova(G_glm, test = 'F')\n"
         AIC_comment <- "# AIC\n"
         AIC <- "AIC(G_glm)\n"
         end <- "</code></pre>"
@@ -910,24 +921,149 @@ server <- function(input, output, session) {
             begin,
             "# select variables\n", yv, x1v, x2v,
             "\n", Glm_comment, Glm,
+            "\n", fit_comment, fit,
             "\n", output_comment, output, 
-            # "\n", anova_comment, anova, 
-            # "\n", AIC_comment, AIC, "\n",
+            "\n", anova_comment, anova, 
+            "\n", AIC_comment, AIC, "\n",
             "\n", end
         )
     })
 
     ## render the code for display using Prism to syntax highlight with 
     ## CSS and javascript
-    output$renderGlmCode <- renderUI({
-        prismCodeBlock(displayGlmCode())
+    output$renderGglmCode <- renderUI({
+        prismCodeBlock(displayGglmCode())
     })
 
     ## render example code for explanation about using variable names and data in lm
-    output$renderExampleCode <- renderUI({
+    output$GrenderExampleCode <- renderUI({
         prismCodeBlock("<pre><code class = 'language-r'>model <- lm(ffold ~ pballs * gender, data = data)\n</code></pre>")
     })
 
+
+
+    ### DATA ANALYSIS / POISSON ###################################################
+
+
+    ## FIT MODEL ...............................................................
+
+    # variables are taken from the data visualisation page
+    output$PyVarText <- renderText({
+        ych <- input$dataViz2YVarFilter
+        paste("Dependent variable <b>y = ", ych, "</b>")
+    })
+    output$PxVarText <- renderText({
+        xch <- input$dataViz2XVarFilter
+        paste("Independent variable <b>x1 = ", xch, "</b>")
+    })
+    output$PzVarText <- renderText({
+        zch <- input$dataViz2ZVarFilter
+        paste("Grouping variable <b>x2 = ", zch, "</b>")
+    })
+
+    # Fit lm using variables
+    Pmodel <- reactive({
+        dat <- dataViz2Data()
+        y <- pull(dat, dataViz2YVar())
+        x1 <- pull(dat, dataViz2XVar())
+        if (dataViz2ZVar() == "None") {
+            model <- glm(y ~ x1, family = "poisson")
+        }
+        if (dataViz2ZVar() != "None") {
+            x2 <- pull(dat, dataViz2ZVar())
+            if (input$Pinteraction == FALSE) {
+                model <- glm(y ~ x1 + x2, family = "poisson")
+            }
+            if (input$Pinteraction == TRUE) {
+                model <- glm(y ~ x1 * x2, family = "poisson")
+            }
+        }
+        model
+    })
+
+    ## disgnostic plots
+    Pcheckplots <- reactive({
+        autoplot(Pmodel()) + theme_minimal()
+    })
+
+    ## RENDERING ...............................................................
+
+    ## Render summary to print (verbatim)
+    output$Pglm <- renderPrint({
+        summary(Pmodel())
+    })
+
+    output$Pglm_anova <- renderPrint({
+        anova(Pmodel(), test = "Chi")
+    })
+
+    output$Pglm_AIC <- renderPrint({
+        AIC(Pmodel())
+    })
+
+    output$Pcheckplots <- renderPlot({
+        Pcheckplots()
+    })
+
+    ## CODE ....................................................................
+
+    displayPglmCode <- reactive({
+        begin <- "<pre><code class = 'language-r'> \n"
+
+        allDat <- all(dim(dataOut()$dFa) == dim(dataSelected()))
+        if (allDat) dat <- "data"
+        if (!allDat) dat <- "dataSubset"
+        if (input$addVar == TRUE) dat <- "dataAddVar"
+
+        yv <- paste0("y <- pull(", dat, ", ", input$dataViz2YVarFilter, ")\n")
+        x1v <- paste0("x1 <- pull(", dat, ", ", input$dataViz2XVarFilter, ")\n")
+        if (dataViz2ZVar() == "None") {
+            x2v <- ""
+            Glm_comment <- "# fit model\n"
+            Glm <- "P_glm <- glm(y ~ x1, family = 'poisson')\n"
+        }
+        if (dataViz2ZVar() != "None") {
+            x2v <- paste0("x2 <- pull(", dat, ", ", input$dataViz2ZVarFilter, ")\n")
+            if (input$Pinteraction == FALSE) {
+                Glm_comment <- "# fit model WITHOUT interaction\n"
+                Glm <- "P_glm <- glm(y ~ x1 + x2, family = 'poisson')\n"
+            }
+            if (input$Pinteraction == TRUE) {
+                Glm_comment <- "# fit model WITH interaction\n"
+                Glm <- "P_glm <- glm(y ~ x1 * x2, family = 'poisson')\n"
+            }
+        }
+        fit_comment <- "# model fit plots\n"
+        fit <- "autoplot(P_glm) + theme_minimal()\n"
+        output_comment <- "# summary (parameters)\n"
+        output <- "summary(P_glm)\n"
+        anova_comment <- "# anova (significance)\n"
+        anova  <- "anova(P_glm, test = 'Chi')\n"
+        AIC_comment <- "# AIC\n"
+        AIC <- "AIC(P_glm)\n"
+        end <- "</code></pre>"
+        paste0(
+            begin,
+            "# select variables\n", yv, x1v, x2v,
+            "\n", Glm_comment, Glm,
+            "\n", fit_comment, fit,
+            "\n", output_comment, output, 
+            "\n", anova_comment, anova, 
+            "\n", AIC_comment, AIC, "\n",
+            "\n", end
+        )
+    })
+
+    ## render the code for display using Prism to syntax highlight with 
+    ## CSS and javascript
+    output$renderPglmCode <- renderUI({
+        prismCodeBlock(displayPglmCode())
+    })
+
+    ## render example code for explanation about using variable names and data in lm
+    output$PrenderExampleCode <- renderUI({
+        prismCodeBlock("<pre><code class = 'language-r'>model <- glm(ffold ~ ruler, data = data, family = 'poisson')\n</code></pre>")
+    })
 
 ### END ########################################################################
 

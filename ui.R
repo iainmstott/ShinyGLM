@@ -535,21 +535,21 @@ ui <- fluidPage(
                         on the DATA page, or change the variables you plot, it 
                         will affect what's displayed here."),
                         hr(),
-                        htmlOutput("yVarText"),
-                        htmlOutput("xVarText"),
-                        htmlOutput("zVarText"),
+                        htmlOutput("GyVarText"),
+                        htmlOutput("GxVarText"),
+                        htmlOutput("GzVarText"),
                         br(),
                         conditionalPanel(
                             condition = "input.dataViz2ZVarFilter !== 'None'",
                             checkboxInput(
-                                inputId = "interaction",
+                                inputId = "Ginteraction",
                                 label = "Include an INTERACTION term?",
                                 value = FALSE
                             )
                         ),
                         br(),
                         HTML("Note: it's best to specify a model using e.g. "),
-                        htmlOutput("renderExampleCode"),
+                        htmlOutput("GrenderExampleCode"),
                         HTML("instead of <b>y</b>, <b>x1</b> and <b>x2</b>. 
                         It's just easier to take the latter approach here because 
                         of the way the app works!")
@@ -558,24 +558,58 @@ ui <- fluidPage(
                     mainPanel(
                         tabsetPanel(type = "tabs", selected = "MODEL FIT",
                             tabPanel("MODEL FIT",
-                                br(),
-                                HTML("MODEL FIT COMING SOON...")
+                                br(),                                
+                                plotOutput(outputId = "Gcheckplots")
                             ),
                             tabPanel("MODEL RESULTS",
                                 br(),
                                 h5("Model summary (parameters)"),
-                                verbatimTextOutput("Glm"),
+                                verbatimTextOutput("Gglm"),
+                                br(),
+                                # checkboxInput(
+                                #     inputId = "GLinPred",
+                                #     label = "Add linear predictor to plot?",
+                                #     value = FALSE
+                                # ),
                                 # br(),
-                                # h5("Anova table (significance)"),
-                                # verbatimTextOutput("Glm_anova"),
-                                # br(),
-                                # h5("AIC"),
-                                # verbatimTextOutput("Glm_AIC"),
+                                h5("Anova table (significance)"),
+                                verbatimTextOutput("Gglm_anova"),
+                                HTML("
+                                    The F tests associated with this anova table 
+                                    are only valid for balanced experimental 
+                                    designs. It is usually better to compare nested
+                                    models to one another, e.g. compare: </br>
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x1 * x2</span> to
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x1 + x2</span>; </br>
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x1 + x2</span> to
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x1</span> or 
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x2</span>; </br>
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x1 + x2</span> to
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x1</span> or 
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x2</span>; </br>
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x1</span> or
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x2</span> to
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ 1</span>.</br>
+                                "),
+                                br(),
+                                h5("AIC"),
+                                verbatimTextOutput("Gglm_AIC"),
                                 br()
                             ),
                             tabPanel("CODE",
-                                tags$div(id = "GlmCode",
-                                    htmlOutput("renderGlmCode")
+                                tags$div(id = "GglmCode",
+                                    htmlOutput("renderGglmCode")
                                 ),
                                 br(),
                                 br()
@@ -591,23 +625,94 @@ ui <- fluidPage(
                 sidebarLayout(
 #...............................................................................
                     sidebarPanel(width = 4,
-                        # Choose data
-                        HTML("COMING SOON...")
+                        tags$h5("DATA ANALYSIS / Poisson"),
+                        HTML("This page uses the variables you've plotted on
+                        the 'Data Visualisation / two variables' page in a 
+                        Poisson linear model. Anything you do on this page 
+                        won't affect the data you've chosen, or the variables 
+                        you've plotted, but if you change what you've selected 
+                        on the DATA page, or change the variables you plot, it 
+                        will affect what's displayed here."),
+                        hr(),
+                        htmlOutput("PyVarText"),
+                        htmlOutput("PxVarText"),
+                        htmlOutput("PzVarText"),
+                        br(),
+                        conditionalPanel(
+                            condition = "input.dataViz2ZVarFilter !== 'None'",
+                            checkboxInput(
+                                inputId = "Pinteraction",
+                                label = "Include an INTERACTION term?",
+                                value = FALSE
+                            )
+                        ),
+                        br(),
+                        HTML("Note: it's best to specify a model using e.g. "),
+                        htmlOutput("PrenderExampleCode"),
+                        HTML("instead of <b>y</b>, <b>x1</b> and <b>x2</b>. 
+                        It's just easier to take the latter approach here because 
+                        of the way the app works!")
                     ),
 #...............................................................................
                     mainPanel(
                         tabsetPanel(type = "tabs", selected = "MODEL FIT",
                             tabPanel("MODEL FIT",
-                                br(),
-                                HTML("MODEL FIT COMING SOON...")
+                                br(),                                
+                                plotOutput(outputId = "Pcheckplots")
                             ),
                             tabPanel("MODEL RESULTS",
                                 br(),
-                                HTML("MODEL RESULTS COMING SOON...")
+                                h5("Model summary (parameters)"),
+                                verbatimTextOutput("Pglm"),
+                                br(),
+                                # checkboxInput(
+                                #     inputId = "GLinPred",
+                                #     label = "Add linear predictor to plot?",
+                                #     value = FALSE
+                                # ),
+                                # br(),
+                                h5("Anova table (significance)"),
+                                verbatimTextOutput("Pglm_anova"),
+                                HTML("
+                                    The F tests associated with this anova table 
+                                    are only valid for balanced experimental 
+                                    designs. It is usually better to compare nested
+                                    models to one another, e.g. compare: </br>
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x1 * x2</span> to
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x1 + x2</span>; </br>
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x1 + x2</span> to
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x1</span> or 
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x2</span>; </br>
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x1 + x2</span> to
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x1</span> or 
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x2</span>; </br>
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x1</span> or
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ x2</span> to
+                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
+                                    y ~ 1</span>.
+                                    </br>
+                                "),
+                                br(),
+                                h5("AIC"),
+                                verbatimTextOutput("Pglm_AIC"),
+                                br()
                             ),
                             tabPanel("CODE",
+                                tags$div(id = "PglmCode",
+                                    htmlOutput("renderPglmCode")
+                                ),
                                 br(),
-                                HTML("CODE COMING SOON...")
+                                br()
                             )
                         )
                     )

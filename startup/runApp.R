@@ -8,6 +8,7 @@ install.packages("shinyjs")
 install.packages("ggplot2")
 install.packages("readr")
 install.packages("DT")
+install.packages("ggfortify")
 
 # Make sure the directory is correct
 setwd("C:/Dropbox/Work/Software/RShiny/ShinyGLiM")
