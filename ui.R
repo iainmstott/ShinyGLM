@@ -3,8 +3,7 @@ ui <- fluidPage(
 
 ### SET UP #####################################################################
 ## THEME .......................................................................
-    theme = shinytheme("paper"),
-
+# theme = shinytheme("paper"),
 
 ## HEAD ........................................................................
 
@@ -40,32 +39,17 @@ ui <- fluidPage(
 
 ### TITLE PANEL ################################################################
 
-    navbarPage("BGY2010M", collapsible = TRUE, selected = "USER GUIDE",
-        ## Heading
-        # stuff about the app
-        tags$div(id = "tagline",
-            HTML("This Shiny app is designed to help novice learners understand 
-            the nature of data, visualising it, and analysing it using 
-            generalised linear models. The app uses the 
-            <a href='https://www.tidyverse.org/packages/' target=_blank>tidyverse</a>
-            and is intended as a loose accompaniment to the excellent
-            <a href='https://global.oup.com/academic/product/getting-started-with-r-9780198787846' target=_blank>Getting Started with R (second edition)</a>
-            textbook by Andrew Beckerman, Dylan Childs and Owen Petchey (2017). 
-            Source code for this project is on my
-            <a href='https://github.com/iainmstott' target=_blank>GitHub</a>."
-            ),
-            p()
-        ),
-        br(),
-
+navbarPage("BGY2010M",
+    collapsible = TRUE, selected = "USER GUIDE",
+    position = "fixed-top",
 
 ### USER GUIDE PANEL ###########################################################
 
-        tabPanel("USER GUIDE",
+        tabPanel("USER GUIDE", style = "padding-top:10px;",
             sidebarLayout(
 ## SIDEBAR PANEL (CHOOSE DATA) .................................................
-                sidebarPanel(width = 4,
-                    tags$h5("USER GUIDE"),
+                sidebarPanel(width = 4, style = "padding-bottom: 90px",
+                    tags$h4("USER GUIDE"),
                     HTML("This page navigates you through the shiny app. The 
                           very first thing you need to do though, is choose the 
                           data with which you want to work."),
@@ -89,10 +73,30 @@ ui <- fluidPage(
                                   other current app settings!")
                         )
                     ),
-                    br(),
-                    br()
+                    hr(),
+                    # Choose theme
+                    div(
+                        themeSelectorHack()
+                    )
                 ),
                 mainPanel(
+                    ## Heading
+                    # stuff about the app
+                    tags$div(id = "tagline",
+                        br(),
+                        tags$em(
+                            HTML("This Shiny app is designed to help novice learners understand 
+                                                the nature of data, visualising it, and analysing it using 
+                                                generalised linear models. The app uses the 
+                                                <a href='https://www.tidyverse.org/packages/' target=_blank>tidyverse</a>
+                                                and is intended as a loose accompaniment to the excellent
+                                                <a href='https://global.oup.com/academic/product/getting-started-with-r-9780198787846' target=_blank>Getting Started with R (second edition)</a>
+                                                textbook by Andrew Beckerman, Dylan Childs and Owen Petchey (2017). 
+                                                Source code for this project is on my
+                                                <a href='https://github.com/iainmstott' target=_blank>GitHub</a>.")
+                        )
+                    ),
+                    br(),
                     h4("USER GUIDE"),
                     HTML("This page walks you through the content and useage of each panel.
                           This Shiny app is all about DATA. So, first
@@ -167,7 +171,7 @@ ui <- fluidPage(
 ### DATA PANEL #################################################################
 
 
-        tabPanel("DATA",
+        tabPanel("DATA", style = "padding-top:10px;",
             sidebarLayout(
 ## SIDEBAR PANEL (CHOOSE DATA) .................................................
                 sidebarPanel(width = 4,
@@ -322,7 +326,7 @@ ui <- fluidPage(
 ## DATA VISUALISATION PANEL ####################################################
 
         navbarMenu("DATA VISUALISATION",
-            tabPanel("ONE VARIABLE",
+            tabPanel("ONE VARIABLE", style = "padding-top:10px;",
                 sidebarLayout(
 #...............................................................................
                     sidebarPanel(width = 4,
@@ -398,7 +402,7 @@ ui <- fluidPage(
                     )
                 )
             ),
-            tabPanel("TWO VARIABLES",
+            tabPanel("TWO VARIABLES", style = "padding-top:10px;",
                 sidebarLayout(
 #...............................................................................
                     sidebarPanel(width = 4,
@@ -522,7 +526,7 @@ ui <- fluidPage(
 
 ##_GAUSSIAN_DATA________________________________________________________________
 
-            tabPanel("GAUSSIAN",
+            tabPanel("GAUSSIAN", style = "padding-top:10px;",
                 sidebarLayout(
 #...............................................................................
                     sidebarPanel(width = 4,
@@ -590,12 +594,6 @@ ui <- fluidPage(
                                     <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
                                     y ~ x2</span>; </br>
                                     <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
-                                    y ~ x1 + x2</span> to
-                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
-                                    y ~ x1</span> or 
-                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
-                                    y ~ x2</span>; </br>
-                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
                                     y ~ x1</span> or
                                     <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
                                     y ~ x2</span> to
@@ -621,7 +619,7 @@ ui <- fluidPage(
 
 ##_POISSON_DATA_________________________________________________________________
 
-            tabPanel("POISSON",
+            tabPanel("POISSON", style = "padding-top:10px;",
                 sidebarLayout(
 #...............................................................................
                     sidebarPanel(width = 4,
@@ -689,12 +687,6 @@ ui <- fluidPage(
                                     <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
                                     y ~ x2</span>; </br>
                                     <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
-                                    y ~ x1 + x2</span> to
-                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
-                                    y ~ x1</span> or 
-                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
-                                    y ~ x2</span>; </br>
-                                    <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
                                     y ~ x1</span> or
                                     <span style='font-family: Consolas, Monospace; background-color: #F2F2F2;'>
                                     y ~ x2</span> to
@@ -721,7 +713,7 @@ ui <- fluidPage(
 
 ##_BINOMIAL_DATA________________________________________________________________
 
-            tabPanel("BINOMIAL",
+            tabPanel("BINOMIAL", style = "padding-top:10px;",
                 sidebarLayout(
 #...............................................................................
                     sidebarPanel(width = 4,

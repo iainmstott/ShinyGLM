@@ -188,7 +188,8 @@ server <- function(input, output, session) {
             }
             if (!all(c(aVN, aVV) %in% "")) {
                 newvar0 <- with(dFc, eval(parse(text = aVV)))
-                newvar <- round(newvar0, 9)
+                if (is.numeric(newvar0)) newvar <- round(newvar0, 9)
+                if (!is.numeric(newvar0)) newvar <- newvar0
                 dFa <- mutate(dFc, !!aVN := newvar)
             }
         }
@@ -209,9 +210,17 @@ server <- function(input, output, session) {
     ## render the data for display
     output$renderData <- DT::renderDataTable({
         dOut <- dataOut()
+        cols <- names(dOut$dFa)
         dT <- datatable(dOut$dFa,
-                            options = list(dom = "ft", pageLength = -1),
-                            rownames = FALSE, filter = "none")
+            options = list(dom = "ft", pageLength = -1),
+            rownames = FALSE, filter = "none"
+        )
+        if (input$"shinytheme-selector" %in% c("cyborg", "darkly", "slate", "superhero")) {
+            dT <- dT %>% formatStyle(
+                cols,
+                backgroundColor = "#303030"
+            )
+        }
         dT
     }, na = "NA")
 
