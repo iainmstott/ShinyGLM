@@ -212,7 +212,7 @@ server <- function(input, output, session) {
         dOut <- dataOut()
         cols <- names(dOut$dFa)
         dT <- datatable(dOut$dFa,
-            options = list(dom = "ft", pageLength = -1),
+            options = list(dom = "ti", pageLength = -1),
             rownames = FALSE, filter = "none"
         )
         if (input$"shinytheme-selector" %in% c("cyborg", "darkly", "slate", "superhero")) {
@@ -233,7 +233,7 @@ server <- function(input, output, session) {
         ## reading in the data
         dataName <- isolate(input$dataSelect)
         read <- paste("# read in data", "\n",
-                      "data <- read_csv('",
+                      "games <- read_csv('",
                       dataName,
                       ".csv')", "\n\n",
                       sep = "")
@@ -339,7 +339,7 @@ server <- function(input, output, session) {
         if (input$addVar == FALSE) dataSubsetDisplay <- "# display the data\ndataSubset\n\n"
         # paste together the subsetting code
         dataSubset <- paste0("# subset the data", "\n",
-                             "dataSubset <- data %>%", "\n",
+                             "dataSubset <- games %>%", "\n",
                              rowSubset, rowPipe, colSubset, "\n",
                              dataSubsetDisplay)
         # is the entire data table selected?
@@ -348,9 +348,9 @@ server <- function(input, output, session) {
         # if the entire data table is selected and no variables added, show simpler code
         if (allDat) {
             dataSubset <- paste("# display the data", "\n",
-                                "data", "\n\n",
+                                "games", "\n\n",
                                 sep = "")
-            dataNext <- "data"
+            dataNext <- "games"
             # if a variable is added, don't display this data
             if(input$addVar == TRUE) dataSubset <- ""
         }
@@ -440,7 +440,8 @@ server <- function(input, output, session) {
             width <- range[2] - range[1]
             updateSliderInput(session, "dataViz1XLim",
                 min = (range[1] - width), max = (range[2] + width),
-                value = c(range[1], range[2])
+                value = c(range[1], range[2]),
+                step = width / 100
             )
         }
     })
@@ -473,7 +474,7 @@ server <- function(input, output, session) {
         hist <- ggplot(dat, aes_string(x = var)) +
                 geom_histogram(aes(y = ..density..), bins = bin,
                                fill = fill) +
-                xlim(lim[1], lim[2])
+                xlim(lim[1] - 0.1 * diff(lim), lim[2] + 0.1 * diff(lim))
         if (input$dataViz1Density == TRUE) hist <- hist + geom_density(color = "white", fill = "darkgrey", alpha = 0.5)
         if (input$dataViz1Theme == "minimal") hist <- hist + theme_minimal()
         if (input$dataViz1Theme == "grey") hist <- hist + theme_gray()

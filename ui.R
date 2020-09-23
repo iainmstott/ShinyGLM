@@ -39,7 +39,7 @@ ui <- fluidPage(
 
 ### TITLE PANEL ################################################################
 
-navbarPage("BGY2010M",
+navbarPage("ShinyGLM",
     collapsible = TRUE, selected = "USER GUIDE",
     position = "fixed-top",
 
@@ -325,194 +325,192 @@ navbarPage("BGY2010M",
 
 ## DATA VISUALISATION PANEL ####################################################
 
-        navbarMenu("DATA VISUALISATION",
-            tabPanel("ONE VARIABLE", style = "padding-top:10px;",
-                sidebarLayout(
+        tabPanel("DATA DISTRIBUTIONS", style = "padding-top:10px;",
+            sidebarLayout(
 #...............................................................................
-                    sidebarPanel(width = 4,
-                        tags$h5("DATA VISUALISATION / one variable"),
-                        HTML("This page uses the data you've subsetted and manipulated
-                        on the previous page to make single variable plots. Anything 
-                        you do on this page won't affect the data you've chosen, but
-                        if you change what you've selected on the DATA page, it will 
-                        affect the plots on this page."),
-                        hr(),
-                        selectInput(
-                            inputId = "dataViz1VarFilter", 
-                            label = "Choose a variable to plot:",
-                            choices = "A",
-                            multiple = FALSE, selectize = TRUE
-                        ),
-                        br(),
-                        sliderInput(
-                            inputId = "dataViz1XLim", 
-                            label = "X axis limits:",
-                            value = c(1, 1),
-                            min = 1, max = 1, step = 1
-                        ),
-                        numericInput(
-                            inputId = "dataViz1Bin",
-                            label = "Choose the number of bins to plot:",
-                            min = 3, max = 100, step = 1, value = 10
-                        ),
-                        br(),
-                        textInput(
-                            inputId = "dataViz1Fill", 
-                            label = "Type a colour name!",
-                            value = "steelblue4"),
-                        HTML("The <a href='https://bit.ly/1lE3ouh' target=blank>R colour guide</a> may help."),
-                        br(),
-                        br(),
-                        checkboxInput(
-                            inputId = "dataViz1Density",
-                            label = "Add a density plot?",
-                            value = FALSE
-                        ),
-                        br(),
-                        radioButtons(
-                            inputId = "dataViz1Theme", 
-                            label = "Choose a theme for the plot:",
-                            choices = list(
-                                "minimal" = "minimal", 
-                                "grey" = "grey",
-                                "classic" = "classic",
-                                "void" = "void"
-                            ),
-                            selected = "minimal"
-                        ),
-                        br(),
-                        hr()
+                sidebarPanel(width = 4,
+                    tags$h5("DATA VISUALISATION / one variable"),
+                    HTML("This page uses the data you've subsetted and manipulated
+                    on the previous page to make single variable plots. Anything 
+                    you do on this page won't affect the data you've chosen, but
+                    if you change what you've selected on the DATA page, it will 
+                    affect the plots on this page."),
+                    hr(),
+                    selectInput(
+                        inputId = "dataViz1VarFilter", 
+                        label = "Choose a variable to plot:",
+                        choices = "A",
+                        multiple = FALSE, selectize = TRUE
                     ),
+                    br(),
+                    sliderInput(
+                        inputId = "dataViz1XLim", 
+                        label = "X axis limits:",
+                        value = c(1, 1),
+                        min = 1, max = 1, step = 1
+                    ),
+                    numericInput(
+                        inputId = "dataViz1Bin",
+                        label = "Choose the number of bins to plot:",
+                        min = 3, max = 100, step = 1, value = 10
+                    ),
+                    br(),
+                    textInput(
+                        inputId = "dataViz1Fill", 
+                        label = "Type a colour name!",
+                        value = "steelblue4"),
+                    HTML("The <a href='https://bit.ly/1lE3ouh' target=blank>R colour guide</a> may help."),
+                    br(),
+                    br(),
+                    checkboxInput(
+                        inputId = "dataViz1Density",
+                        label = "Add a density plot?",
+                        value = FALSE
+                    ),
+                    br(),
+                    radioButtons(
+                        inputId = "dataViz1Theme", 
+                        label = "Choose a theme for the plot:",
+                        choices = list(
+                            "minimal" = "minimal", 
+                            "grey" = "grey",
+                            "classic" = "classic",
+                            "void" = "void"
+                        ),
+                        selected = "minimal"
+                    ),
+                    br(),
+                    hr()
+                ),
 
 #...............................................................................
-                    mainPanel(
-                        tabsetPanel(type = "tabs", selected = "PLOT",
-                            tabPanel("PLOT",
-                                br(),
-                                plotOutput(outputId = "oneVarPlot")
+                mainPanel(
+                    tabsetPanel(type = "tabs", selected = "PLOT",
+                        tabPanel("PLOT",
+                            br(),
+                            plotOutput(outputId = "oneVarPlot")
+                        ),
+                        tabPanel("CODE",
+                            tags$div(id = "dataViz1Code",
+                                htmlOutput("renderDataViz1Code")
                             ),
-                            tabPanel("CODE",
-                                tags$div(id = "dataViz1Code",
-                                    htmlOutput("renderDataViz1Code")
-                                ),
-                                br(),
-                                br()
-                            )
+                            br(),
+                            br()
                         )
                     )
                 )
-            ),
-            tabPanel("TWO VARIABLES", style = "padding-top:10px;",
-                sidebarLayout(
+            )
+        ),
+        tabPanel("DATA VISUALISATION", style = "padding-top:10px;",
+            sidebarLayout(
 #...............................................................................
-                    sidebarPanel(width = 4,
-                        tags$h5("DATA VISUALISATION / two variables"),
-                        HTML("This page uses the data you've subsetted and manipulated
-                        on the previous page to make two-variable plots. Anything 
-                        you do on this page won't affect the data you've chosen, but
-                        if you change what you've selected on the DATA page, it will 
-                        affect the plots on this page."),
-                        hr(),
-                        selectInput(
-                            inputId = "dataViz2YVarFilter", 
-                            label = "Choose a DEPENDENT (y) variable to plot",
-                            choices = "A",
-                            multiple = FALSE, selectize = TRUE
-                        ),
-                        sliderInput(
-                            inputId = "dataViz2YLim", 
-                            label = "Y axis limits",
-                            value = c(1, 1),
-                            min = 1, max = 1, step = 1
-                        ),
-                        selectInput(
-                            inputId = "dataViz2XVarFilter", 
-                            label = "Choose an INDEPENDENT (x) variable to plot",
-                            choices = "A",
-                            multiple = FALSE, selectize = TRUE
-                        ),
-                        selectInput(
-                            inputId = "dataViz2ZVarFilter", 
-                            label = "Choose a GROUPING variable to plot",
-                            choices = "A",
-                            multiple = FALSE, selectize = TRUE
-                        ),
-                        br(),
-                        radioButtons(
-                            inputId = "dataViz2Plot", 
-                            label = "Plot TYPE:",
-                            choices = list(
-                                "points" = "points", 
-                                "boxplot" = "boxplot",
-                                "violin" = "violin",
-                                "barplot" = "barplot"
-                            ),
-                            selected = "points"
-                        ),
-                        br(),
-                        textInput(
-                            inputId = "dataViz2Color", 
-                            label = "COLOR name (points & lines)",
-                            value = "steelblue4"),
-                        conditionalPanel(
-                            condition = "input.dataViz2ZVarFilter !== 'None'",
-                            HTML("If a grouping variable is being used, specify the name of a 
-                            <a href='https://www.datanovia.com/en/wp-content/uploads/dn-tutorials/ggplot2/figures/0101-rcolorbrewer-palette-rcolorbrewer-palettes-1.png' target=blank>
-                            COLOR BREWER PALETTE
-                            </a> instead (under COLOR for points; under FILL for 
-                            boxplots, violin plots & barplots). This gives multiple
-                            colors for the multiple groups. If the palette name
-                            is invalid, everything will be a default green.
-                            </br></br>")
-                        ),
-                        textInput(
-                            inputId = "dataViz2Fill", 
-                            label = "FILL color name (boxes & bars)",
-                            value = "lightblue"),
-                        HTML("The <a href='https://bit.ly/1lE3ouh' target=blank>R colour guide</a> may help."),
-                        br(),
-                        br(),
-                        br(),
-                        textInput(
-                            inputId = "dataViz2Ylab", 
-                            label = "Y label",
-                            value = "",
-                            placeholder = "y label"),
-                        textInput(
-                            inputId = "dataViz2Xlab", 
-                            label = "X label",
-                            value = "",
-                            placeholder = "x label"),
-                        br(),
-                        radioButtons(
-                            inputId = "dataViz2Theme", 
-                            label = "Choose a THEME for the plot:",
-                            choices = list(
-                                "minimal" = "minimal", 
-                                "grey" = "grey",
-                                "classic" = "classic",
-                                "void" = "void"
-                            ),
-                            selected = "minimal"
-                        ),
-                        br(),
-                        hr()
+                sidebarPanel(width = 4,
+                    tags$h5("DATA VISUALISATION / two variables"),
+                    HTML("This page uses the data you've subsetted and manipulated
+                    on the previous page to make two-variable plots. Anything 
+                    you do on this page won't affect the data you've chosen, but
+                    if you change what you've selected on the DATA page, it will 
+                    affect the plots on this page."),
+                    hr(),
+                    selectInput(
+                        inputId = "dataViz2YVarFilter", 
+                        label = "Choose a DEPENDENT (y) variable to plot",
+                        choices = "A",
+                        multiple = FALSE, selectize = TRUE
                     ),
+                    sliderInput(
+                        inputId = "dataViz2YLim", 
+                        label = "Y axis limits",
+                        value = c(1, 1),
+                        min = 1, max = 1, step = 1
+                    ),
+                    selectInput(
+                        inputId = "dataViz2XVarFilter", 
+                        label = "Choose an INDEPENDENT (x) variable to plot",
+                        choices = "A",
+                        multiple = FALSE, selectize = TRUE
+                    ),
+                    selectInput(
+                        inputId = "dataViz2ZVarFilter", 
+                        label = "Choose a GROUPING variable to plot",
+                        choices = "A",
+                        multiple = FALSE, selectize = TRUE
+                    ),
+                    br(),
+                    radioButtons(
+                        inputId = "dataViz2Plot", 
+                        label = "Plot TYPE:",
+                        choices = list(
+                            "points" = "points", 
+                            "boxplot" = "boxplot",
+                            "violin" = "violin",
+                            "barplot" = "barplot"
+                        ),
+                        selected = "points"
+                    ),
+                    br(),
+                    textInput(
+                        inputId = "dataViz2Color", 
+                        label = "COLOR name (points & lines)",
+                        value = "steelblue4"),
+                    conditionalPanel(
+                        condition = "input.dataViz2ZVarFilter !== 'None'",
+                        HTML("If a grouping variable is being used, specify the name of a 
+                        <a href='https://www.datanovia.com/en/wp-content/uploads/dn-tutorials/ggplot2/figures/0101-rcolorbrewer-palette-rcolorbrewer-palettes-1.png' target=blank>
+                        COLOR BREWER PALETTE
+                        </a> instead (under COLOR for points; under FILL for 
+                        boxplots, violin plots & barplots). This gives multiple
+                        colors for the multiple groups. If the palette name
+                        is invalid, everything will be a default green.
+                        </br></br>")
+                    ),
+                    textInput(
+                        inputId = "dataViz2Fill", 
+                        label = "FILL color name (boxes & bars)",
+                        value = "lightblue"),
+                    HTML("The <a href='https://bit.ly/1lE3ouh' target=blank>R colour guide</a> may help."),
+                    br(),
+                    br(),
+                    br(),
+                    textInput(
+                        inputId = "dataViz2Ylab", 
+                        label = "Y label",
+                        value = "",
+                        placeholder = "y label"),
+                    textInput(
+                        inputId = "dataViz2Xlab", 
+                        label = "X label",
+                        value = "",
+                        placeholder = "x label"),
+                    br(),
+                    radioButtons(
+                        inputId = "dataViz2Theme", 
+                        label = "Choose a THEME for the plot:",
+                        choices = list(
+                            "minimal" = "minimal", 
+                            "grey" = "grey",
+                            "classic" = "classic",
+                            "void" = "void"
+                        ),
+                        selected = "minimal"
+                    ),
+                    br(),
+                    hr()
+                ),
 ### ***
 #...............................................................................
-                    mainPanel(
-                        tabsetPanel(type = "tabs", selected = "PLOT",
-                            tabPanel("PLOT",
-                                br(),
-                                plotOutput(outputId = "twoVarPlot")
+                mainPanel(
+                    tabsetPanel(type = "tabs", selected = "PLOT",
+                        tabPanel("PLOT",
+                            br(),
+                            plotOutput(outputId = "twoVarPlot")
+                        ),
+                        tabPanel("CODE",
+                            tags$div(id = "dataViz2Code",
+                                htmlOutput("renderDataViz2Code")
                             ),
-                            tabPanel("CODE",
-                                tags$div(id = "dataViz2Code",
-                                    htmlOutput("renderDataViz2Code")
-                                ),
-                                br(),
-                                br()
-                            )
+                            br(),
+                            br()
                         )
                     )
                 )
